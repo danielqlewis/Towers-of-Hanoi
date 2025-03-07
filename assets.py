@@ -1,0 +1,209 @@
+from dataclasses import dataclass
+import pygame
+from typing import Dict, Tuple
+from enum import Enum
+
+
+class Button(Enum):
+    PLAY = 0
+    OPTIONS = 1
+    EXIT = 2
+    TUTORIAL = 3
+    CREDITS = 4
+    DIFFICULTY_TOGGLE = 5
+    RESOLUTION_TOGGLE = 6
+    THEME_TOGGLE = 7
+    BACK_TO_MAIN = 8
+    ACCEPT_SETTINGS = 9
+    RESET_BOARD = 10
+
+
+class MenuTheme(Enum):
+    STANDARD = 0
+    RED = 1
+    BLUE = 2
+
+
+@dataclass(frozen=True)
+class BackgroundContainer:
+    main_menu: pygame.Surface
+    options_menu: pygame.Surface
+    game_board: pygame.Surface
+    credits: pygame.Surface
+
+
+@dataclass(frozen=True)
+class ButtonContainer:
+    standard: Dict[Button, pygame.Surface]
+    highlighted: Dict[Button, pygame.Surface]
+
+
+@dataclass(frozen=True)
+class DiscContainer:
+    standard: Dict[int, pygame.Surface]
+    highlighted: Dict[int, pygame.Surface]
+
+
+@dataclass(frozen=True)
+class SettingIndicatorContainer:
+    difficulty: Dict[int, pygame.Surface]
+    resolution: Dict[Tuple, pygame.Surface]
+    theme: Dict[MenuTheme, pygame.Surface]
+
+
+@dataclass(frozen=True)
+class GameNotificationContainer:
+    illegal_move: pygame.Surface
+    victory: pygame.Surface
+
+
+@dataclass(frozen=True)
+class TutorialSlidesContainer:
+    slides: Dict[int, pygame.Surface]
+
+
+@dataclass(frozen=True)
+class AssetsContainer:
+    backgrounds: BackgroundContainer
+    buttons: ButtonContainer
+    discs: DiscContainer
+    setting_indicators: SettingIndicatorContainer
+    game_notifications: GameNotificationContainer
+    tutorial_images: TutorialSlidesContainer
+
+
+def get_theme_specific_assets(theme: MenuTheme):
+    if theme == MenuTheme.RED:
+        main_menu = pygame.image.load("assets/red/Menu_BG.png").convert()
+        options_menu = pygame.image.load("assets/red/Options_BG.png").convert()
+        game_board = pygame.image.load("assets/red/Game_BG.png").convert()
+    elif theme == MenuTheme.BLUE:
+        main_menu = pygame.image.load("assets/blue/Menu_BG.png").convert()
+        options_menu = pygame.image.load("assets/blue/Options_BG.png").convert()
+        game_board = pygame.image.load("assets/blue/Game_BG.png").convert()
+    else:
+        main_menu = pygame.image.load("assets/default/Menu_BG.png").convert()
+        options_menu = pygame.image.load("assets/default/Options_BG.png").convert()
+        game_board = pygame.image.load("assets/default/Game_BG.png").convert()
+
+    return main_menu, options_menu, game_board
+
+
+def get_common_assets():
+    credits_background = pygame.image.load("assets/Credit_Page.png").convert()
+
+    # Buttons###########################################################################################################
+    standard_buttons = {Button.PLAY: pygame.image.load("assets/Play_Button_Base.png").convert(),
+                        Button.OPTIONS: pygame.image.load("assets/Options_Button_Base.png").convert(),
+                        Button.EXIT: pygame.image.load("assets/Exit_Button_Base.png").convert(),
+                        Button.TUTORIAL: pygame.image.load("assets/Tutorial_Button_Base.png").convert(),
+                        Button.CREDITS: pygame.image.load("assets/Credits_Button_Base.png").convert(),
+                        Button.DIFFICULTY_TOGGLE: pygame.image.load("assets/Difficulty_Button_Base.png").convert(),
+                        Button.RESOLUTION_TOGGLE: pygame.image.load("assets/Resolution_Button_Base.png").convert(),
+                        Button.THEME_TOGGLE: pygame.image.load("assets/Style_Button_Base.png").convert(),
+                        Button.BACK_TO_MAIN: pygame.image.load("assets/Back_Button_Base.png").convert(),
+                        Button.ACCEPT_SETTINGS: pygame.image.load("assets/Accept_Button_Base.png").convert(),
+                        Button.RESET_BOARD: pygame.image.load("assets/Refresh_Button_Base.png").convert()}
+
+    highlighted_buttons = {Button.PLAY: pygame.image.load("assets/Play_Button_Selected.png").convert(),
+                           Button.OPTIONS: pygame.image.load("assets/Options_Button_Selected.png").convert(),
+                           Button.EXIT: pygame.image.load("assets/Exit_Button_Selected.png").convert(),
+                           Button.TUTORIAL: pygame.image.load("assets/Tutorial_Button_Selected.png").convert(),
+                           Button.CREDITS: pygame.image.load("assets/Credits_Button_Selected.png").convert(),
+                           Button.DIFFICULTY_TOGGLE: pygame.image.load(
+                               "assets/Difficulty_Button_Selected.png").convert(),
+                           Button.RESOLUTION_TOGGLE: pygame.image.load(
+                               "assets/Resolution_Button_Selected.png").convert(),
+                           Button.THEME_TOGGLE: pygame.image.load("assets/Style_Button_Selected.png").convert(),
+                           Button.BACK_TO_MAIN: pygame.image.load("assets/Back_Button_Selected.png").convert(),
+                           Button.ACCEPT_SETTINGS: pygame.image.load("assets/Accept_Button_Selected.png").convert(),
+                           Button.RESET_BOARD: pygame.image.load("assets/Refresh_Button_Selected.png").convert()}
+
+    local_buttons = ButtonContainer(standard=standard_buttons, highlighted=highlighted_buttons)
+
+    # Discs#############################################################################################################
+    standard_discs = {0: pygame.image.load("assets/Plate_0_b.png").convert(),
+                      1: pygame.image.load("assets/Plate_1_b.png").convert(),
+                      2: pygame.image.load("assets/Plate_2_b.png").convert(),
+                      3: pygame.image.load("assets/Plate_3_b.png").convert(),
+                      4: pygame.image.load("assets/Plate_4_b.png").convert()}
+
+    highlighted_discs = {0: pygame.image.load("assets/Plate_0_s.png").convert(),
+                         1: pygame.image.load("assets/Plate_1_s.png").convert(),
+                         2: pygame.image.load("assets/Plate_2_s.png").convert(),
+                         3: pygame.image.load("assets/Plate_3_s.png").convert(),
+                         4: pygame.image.load("assets/Plate_4_s.png").convert()}
+
+    local_discs = DiscContainer(standard=standard_discs, highlighted=highlighted_discs)
+
+    # Indicators########################################################################################################
+    difficulty_indicators = {3: pygame.image.load("assets/Difficulty_Display_1.png").convert(),
+                             4: pygame.image.load("assets/Difficulty_Display_2.png").convert(),
+                             5: pygame.image.load("assets/Difficulty_Display_3.png").convert()}
+
+    resolution_indicators = {(720, 480): pygame.image.load("assets/Resolution_Display_1.png").convert(),
+                             (864, 576): pygame.image.load("assets/Resolution_Display_2.png").convert(),
+                             (960, 640): pygame.image.load("assets/Resolution_Display_3.png").convert(),
+                             (1080, 720): pygame.image.load("assets/Resolution_Display_4.png").convert(),
+                             (1296, 864): pygame.image.load("assets/Resolution_Display_5.png").convert()}
+
+    theme_indicators = {MenuTheme.STANDARD: pygame.image.load("assets/Style_Display_1.png").convert(),
+                        MenuTheme.RED: pygame.image.load("assets/Style_Display_1.png").convert(),
+                        MenuTheme.BLUE: pygame.image.load("assets/Style_Display_1.png").convert()}
+
+    local_setting_indicators = SettingIndicatorContainer(difficulty=difficulty_indicators,
+                                                         resolution=resolution_indicators,
+                                                         theme=theme_indicators)
+
+    # Notifications#####################################################################################################
+    illegal_move_image = pygame.image.load("assets/Big_X.png").convert_alpha()
+    victory_image = pygame.image.load("assets/Victory.png").convert_alpha()
+    local_notificatons = GameNotificationContainer(illegal_move=illegal_move_image, victory=victory_image)
+
+    # Tutorial##########################################################################################################
+    tutorial_slides = {0: pygame.image.load("assets/Tutorial_1.png").convert(),
+                       1: pygame.image.load("assets/Tutorial_2.png").convert(),
+                       2: pygame.image.load("assets/Tutorial_3.png").convert(),
+                       3: pygame.image.load("assets/Tutorial_4.png").convert(),
+                       4: pygame.image.load("assets/Tutorial_5.png").convert(),
+                       5: pygame.image.load("assets/Tutorial_6.png").convert(),
+                       6: pygame.image.load("assets/Tutorial_7.png").convert(),
+                       7: pygame.image.load("assets/Tutorial_8.png").convert()
+                       }
+    local_tutorials = TutorialSlidesContainer(slides=tutorial_slides)
+
+    return credits_background, local_buttons, local_discs, local_setting_indicators, local_notificatons, local_tutorials
+
+
+def build_asset_container(theme: MenuTheme) -> AssetsContainer:
+    # get theme specific assets
+    try:
+        main_menu_background, options_menu_background, game_board_background = get_theme_specific_assets(theme)
+    except (pygame.error, FileNotFoundError) as e:
+        print(f"Failed to load theme asset: {e}")
+        return None
+
+    # get common assets
+    try:
+        credits_background, buttons, discs, setting_indicators, notificatons, tutorials = get_common_assets()
+    except (pygame.error, FileNotFoundError) as e:
+        print(f"Failed to load common asset: {e}")
+        return None
+
+    active_backgrounds = BackgroundContainer(main_menu=main_menu_background,
+                                             options_menu=options_menu_background,
+                                             game_board=game_board_background,
+                                             credits=credits_background)
+
+    return AssetsContainer(backgrounds=active_backgrounds,
+                           buttons=buttons,
+                           discs=discs,
+                           setting_indicators=setting_indicators,
+                           game_notifications=notificatons,
+                           tutorial_images=tutorials)
+
+
+pygame.init()
+pygame.display.set_mode([10, 10])
+test_container = build_asset_container(MenuTheme.STANDARD)
+print(str(test_container))

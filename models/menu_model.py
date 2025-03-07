@@ -1,0 +1,93 @@
+from enum import Enum
+
+
+class MenuState(Enum):
+    MAIN = 0
+    OPTIONS = 1
+    TUTORIAL = 2
+    CREDITS = 3
+
+
+class MenuTheme(Enum):
+    STANDARD = 0
+    RED = 1
+    BLUE = 2
+
+class MenuButton(Enum):
+    PLAY = 0
+    OPTIONS = 1
+    EXIT = 2
+    TUTORIAL = 3
+    CREDITS = 4
+    TOGGLE_DIFFICULTY = 5
+    TOGGLE_RESOLUTION = 6
+    TOGGLE_THEME = 7
+    ACCEPT_SETTINGS = 8
+    BACK_TO_MAIN = 9
+
+
+
+class MenuModel:
+    def __init__(self):
+        self.settings = {
+            "theme": MenuTheme.STANDARD,
+            "resolution": (960, 640),
+            "difficulty": 3  # Number of discs
+        }
+
+        self.current_menu = MenuState.MAIN
+
+        self.highlighed_button = None
+        self.settings_select_display = [MenuTheme.STANDARD, (960, 640), 3]
+
+        self.tutorial_slide = 0
+        self.total_tutorial_slides = 7
+
+    def update_menu_state(self, new_state: MenuState) -> None:
+        self.current_menu = new_state
+
+    def set_highlight(self, new_highlight: MenuButton) -> None:
+        self.highlighed_button = new_highlight
+
+    def deset_highlight(self) -> None:
+        self.highlighed_button = None
+
+    def tutorial_step(self) -> bool:
+        self.tutorial_slide += 1
+        if self.tutorial_slide == self.total_tutorial_slides:
+            return True
+        else:
+            return False
+
+    def cycle_theme_displayed(self) -> None:
+        current_theme = self.settings_select_display[0]
+        next_value = (current_theme.value + 1) % len(MenuTheme)
+        self.settings_select_display[0] = MenuTheme(next_value)
+
+    def cycle_resolution_displayed(self) -> None:
+        resolutions = [
+            (720, 480),
+            (864, 576),
+            (960, 640),
+            (1080, 720),
+            (1296, 864)
+        ]
+        current_idx = resolutions.index(self.settings_select_display[1])
+        next_idx = (current_idx + 1) % len(resolutions)
+        self.settings_select_display[1] = resolutions[next_idx]
+
+    def cycle_difficulty_displayed(self) -> None:
+        difficulties = [3, 4, 5]
+        current_idx = difficulties.index(self.settings_select_display[2])
+        next_idx = (current_idx + 1) % len(difficulties)
+        self.settings_select_display[2] = difficulties[next_idx]
+
+    def reset_displayed_settings(self) -> None:
+        self.settings_select_display[0] = self.settings["theme"]
+        self.settings_select_display[1] = self.settings["resolution"]
+        self.settings_select_display[2] = self.settings["difficulty"]
+
+    def implement_displayed_settings(self) -> None:
+        self.settings["theme"] = self.settings_select_display[0]
+        self.settings["resolution"] = self.settings_select_display[1]
+        self.settings["difficulty"] = self.settings_select_display[2]
