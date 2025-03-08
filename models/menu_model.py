@@ -1,30 +1,4 @@
-from enum import Enum
-
-
-class MenuState(Enum):
-    MAIN = 0
-    OPTIONS = 1
-    TUTORIAL = 2
-    CREDITS = 3
-
-
-class MenuTheme(Enum):
-    STANDARD = 0
-    RED = 1
-    BLUE = 2
-
-class MenuButton(Enum):
-    PLAY = 0
-    OPTIONS = 1
-    EXIT = 2
-    TUTORIAL = 3
-    CREDITS = 4
-    TOGGLE_DIFFICULTY = 5
-    TOGGLE_RESOLUTION = 6
-    TOGGLE_THEME = 7
-    ACCEPT_SETTINGS = 8
-    BACK_TO_MAIN = 9
-
+from constants import MenuState, MenuTheme, Button
 
 
 class MenuModel:
@@ -46,7 +20,7 @@ class MenuModel:
     def update_menu_state(self, new_state: MenuState) -> None:
         self.current_menu = new_state
 
-    def set_highlight(self, new_highlight: MenuButton) -> None:
+    def set_highlight(self, new_highlight: Button) -> None:
         self.highlighed_button = new_highlight
 
     def deset_highlight(self) -> None:

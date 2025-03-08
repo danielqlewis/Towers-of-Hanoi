@@ -1,4 +1,5 @@
-from assets import MenuTheme, Button, build_asset_container, AssetsContainer
+from assets import build_asset_container, AssetsContainer
+from constants import MenuTheme, Button
 import pygame
 import os
 import sys
@@ -12,6 +13,7 @@ def test_asset_container_creation():
     # Initialize pygame if not already done
     if not pygame.get_init():
         pygame.init()
+        pygame.display.set_mode([0, 0])
 
     # Test default theme
     container = build_asset_container(MenuTheme.STANDARD)

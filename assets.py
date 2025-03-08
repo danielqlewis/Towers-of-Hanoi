@@ -1,27 +1,7 @@
 from dataclasses import dataclass
 import pygame
 from typing import Dict, Tuple
-from enum import Enum
-
-
-class Button(Enum):
-    PLAY = 0
-    OPTIONS = 1
-    EXIT = 2
-    TUTORIAL = 3
-    CREDITS = 4
-    DIFFICULTY_TOGGLE = 5
-    RESOLUTION_TOGGLE = 6
-    THEME_TOGGLE = 7
-    BACK_TO_MAIN = 8
-    ACCEPT_SETTINGS = 9
-    RESET_BOARD = 10
-
-
-class MenuTheme(Enum):
-    STANDARD = 0
-    RED = 1
-    BLUE = 2
+from constants import MenuTheme, Button
 
 
 @dataclass(frozen=True)
@@ -148,8 +128,8 @@ def get_common_assets():
                              (1296, 864): pygame.image.load("assets/Resolution_Display_5.png").convert()}
 
     theme_indicators = {MenuTheme.STANDARD: pygame.image.load("assets/Style_Display_1.png").convert(),
-                        MenuTheme.RED: pygame.image.load("assets/Style_Display_1.png").convert(),
-                        MenuTheme.BLUE: pygame.image.load("assets/Style_Display_1.png").convert()}
+                        MenuTheme.RED: pygame.image.load("assets/Style_Display_2.png").convert(),
+                        MenuTheme.BLUE: pygame.image.load("assets/Style_Display_3.png").convert()}
 
     local_setting_indicators = SettingIndicatorContainer(difficulty=difficulty_indicators,
                                                          resolution=resolution_indicators,
@@ -168,8 +148,8 @@ def get_common_assets():
                        4: pygame.image.load("assets/Tutorial_5.png").convert(),
                        5: pygame.image.load("assets/Tutorial_6.png").convert(),
                        6: pygame.image.load("assets/Tutorial_7.png").convert(),
-                       7: pygame.image.load("assets/Tutorial_8.png").convert()
-                       }
+                       7: pygame.image.load("assets/Tutorial_8.png").convert()}
+
     local_tutorials = TutorialSlidesContainer(slides=tutorial_slides)
 
     return credits_background, local_buttons, local_discs, local_setting_indicators, local_notificatons, local_tutorials
@@ -201,9 +181,3 @@ def build_asset_container(theme: MenuTheme) -> AssetsContainer:
                            setting_indicators=setting_indicators,
                            game_notifications=notificatons,
                            tutorial_images=tutorials)
-
-
-pygame.init()
-pygame.display.set_mode([10, 10])
-test_container = build_asset_container(MenuTheme.STANDARD)
-print(str(test_container))
