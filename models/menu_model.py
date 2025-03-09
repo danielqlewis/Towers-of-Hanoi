@@ -1,27 +1,5 @@
 from constants import MenuState, MenuTheme, ButtonFlag
-from pygame import Rect
-
-BUTTON_LOCATIONS = {ButtonFlag.PLAY: (480, 300),
-                    ButtonFlag.OPTIONS: (480, 400),
-                    ButtonFlag.EXIT: (480, 500),
-                    ButtonFlag.TUTORIAL: (140, 570),
-                    ButtonFlag.CREDITS: (820, 570),
-                    ButtonFlag.DIFFICULTY_TOGGLE: (400, 220),
-                    ButtonFlag.RESOLUTION_TOGGLE: (400, 340),
-                    ButtonFlag.THEME_TOGGLE: (400, 440),
-                    ButtonFlag.ACCEPT_SETTINGS: (480, 560),
-                    ButtonFlag.BACK_TO_MAIN: (70, 70)}
-
-
-class ButtonContainer:
-    def __init__(self, flag, location):
-        self.flag = flag
-        if flag == ButtonFlag.BACK_TO_MAIN:
-            button_size = (75, 75)
-        else:
-            button_size = (200, 80)
-        self.rect = Rect(0, 0, button_size)
-        self.rect.center = location
+from models.button_container import ButtonContainer
 
 
 class MenuModel:
@@ -54,7 +32,7 @@ class MenuModel:
             button_list = self.option_menu_buttons
         else:
             button_list = []
-        self.active_buttons = [ButtonContainer(x, BUTTON_LOCATIONS[x]) for x in button_list]
+        self.active_buttons = ButtonContainer.create_buttons(button_list)
 
     def set_highlight(self, new_highlight: ButtonFlag) -> None:
         self.highlighed_button = new_highlight
