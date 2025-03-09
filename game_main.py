@@ -3,7 +3,7 @@ import pygame
 
 
 def main():
-    pass
+    pass #placeholder
 
 
 if __name__ == '__main__':

@@ -7,7 +7,8 @@ class GameModel:
         self.towers = ([x for x in range(disc_num - 1, -1, -1)], [], [])
         button_list = [ButtonFlag.RESET_BOARD, ButtonFlag.BACK_TO_MAIN]
         self.active_buttons = ButtonContainer.create_buttons(button_list)
-        self.highlighed_button = None
+        self.highlighted_button = ButtonFlag.RESET_BOARD
+        self.selected_tower = 0
 
     def check_move_legal(self, from_tower: int, to_tower: int) -> bool:
         if not self.towers[to_tower]:

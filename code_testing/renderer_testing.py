@@ -2,6 +2,7 @@ import pygame
 import os
 import sys
 from models.menu_model import MenuModel
+from models.game_model import GameModel
 from assets import build_asset_container
 from renderer import GameRenderer
 from constants import MenuTheme, MenuState, ButtonFlag
@@ -20,9 +21,7 @@ def test_renderer():
     pygame.display.set_caption("Renderer Test")
 
     # Set up your game objects
-    active_model = MenuModel()
-    active_model.update_menu_state(MenuState.OPTIONS)
-    active_model.highlighted_button = ButtonFlag.ACCEPT_SETTINGS
+    active_model = GameModel()
     asset_package = build_asset_container(MenuTheme.STANDARD)
     renderer = GameRenderer(asset_package)
 
@@ -30,7 +29,7 @@ def test_renderer():
     screen.fill((0, 0, 0))  # Black background
 
     # Pass the screen to your renderer
-    renderer.render_menu(active_model, screen)
+    renderer.render_game(active_model, screen)
 
     # Update the display to show what was rendered
     pygame.display.flip()
