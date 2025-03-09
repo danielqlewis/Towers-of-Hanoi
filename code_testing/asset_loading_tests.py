@@ -1,5 +1,5 @@
 from assets import build_asset_container, AssetsContainer
-from constants import MenuTheme, Button
+from constants import MenuTheme, ButtonFlag
 import pygame
 import os
 import sys
@@ -51,7 +51,7 @@ def test_asset_container_buttons():
     container = build_asset_container(MenuTheme.STANDARD)
 
     # Check all buttons exist in both standard and highlighted states
-    for button in Button:
+    for button in ButtonFlag:
         assert button in container.buttons.standard
         assert button in container.buttons.highlighted
 

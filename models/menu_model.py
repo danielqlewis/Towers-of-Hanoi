@@ -1,7 +1,34 @@
-from constants import MenuState, MenuTheme, Button
+from constants import MenuState, MenuTheme, ButtonFlag
+from pygame import Rect
+
+BUTTON_LOCATIONS = {ButtonFlag.PLAY: (480, 300),
+                    ButtonFlag.OPTIONS: (480, 400),
+                    ButtonFlag.EXIT: (480, 500),
+                    ButtonFlag.TUTORIAL: (140, 570),
+                    ButtonFlag.CREDITS: (820, 570),
+                    ButtonFlag.DIFFICULTY_TOGGLE: (400, 220),
+                    ButtonFlag.RESOLUTION_TOGGLE: (400, 340),
+                    ButtonFlag.THEME_TOGGLE: (400, 440),
+                    ButtonFlag.ACCEPT_SETTINGS: (480, 560),
+                    ButtonFlag.BACK_TO_MAIN: (70, 70)}
+
+
+class ButtonContainer:
+    def __init__(self, flag, location):
+        self.flag = flag
+        if flag == ButtonFlag.BACK_TO_MAIN:
+            button_size = (75, 75)
+        else:
+            button_size = (200, 80)
+        self.rect = Rect(0, 0, button_size)
+        self.rect.center = location
 
 
 class MenuModel:
+    main_menu_buttons = [ButtonFlag.PLAY, ButtonFlag.OPTIONS, ButtonFlag.EXIT, ButtonFlag.TUTORIAL, ButtonFlag.CREDITS]
+    option_menu_buttons = [ButtonFlag.DIFFICULTY_TOGGLE, ButtonFlag.RESOLUTION_TOGGLE, ButtonFlag.THEME_TOGGLE,
+                           ButtonFlag.ACCEPT_SETTINGS, ButtonFlag.BACK_TO_MAIN]
+
     def __init__(self):
         self.settings = {
             "theme": MenuTheme.STANDARD,
@@ -9,7 +36,9 @@ class MenuModel:
             "difficulty": 3  # Number of discs
         }
 
-        self.current_menu = MenuState.MAIN
+        self.current_menu = None
+        self.update_menu_state(MenuState.MAIN)
+        self.active_buttons = []
 
         self.highlighed_button = None
         self.settings_select_display = [MenuTheme.STANDARD, (960, 640), 3]
@@ -19,8 +48,15 @@ class MenuModel:
 
     def update_menu_state(self, new_state: MenuState) -> None:
         self.current_menu = new_state
+        if self.current_menu == MenuState.MAIN:
+            button_list = self.main_menu_buttons
+        elif self.current_menu == MenuState.OPTIONS:
+            button_list = self.option_menu_buttons
+        else:
+            button_list = []
+        self.active_buttons = [ButtonContainer(x, BUTTON_LOCATIONS[x]) for x in button_list]
 
-    def set_highlight(self, new_highlight: Button) -> None:
+    def set_highlight(self, new_highlight: ButtonFlag) -> None:
         self.highlighed_button = new_highlight
 
     def deset_highlight(self) -> None:

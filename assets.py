@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import pygame
 from typing import Dict, Tuple
-from constants import MenuTheme, Button
+from constants import MenuTheme, ButtonFlag
 
 
 @dataclass(frozen=True)
@@ -14,8 +14,8 @@ class BackgroundContainer:
 
 @dataclass(frozen=True)
 class ButtonContainer:
-    standard: Dict[Button, pygame.Surface]
-    highlighted: Dict[Button, pygame.Surface]
+    standard: Dict[ButtonFlag, pygame.Surface]
+    highlighted: Dict[ButtonFlag, pygame.Surface]
 
 
 @dataclass(frozen=True)
@@ -73,31 +73,31 @@ def get_common_assets():
     credits_background = pygame.image.load("assets/Credit_Page.png").convert()
 
     # Buttons###########################################################################################################
-    standard_buttons = {Button.PLAY: pygame.image.load("assets/Play_Button_Base.png").convert(),
-                        Button.OPTIONS: pygame.image.load("assets/Options_Button_Base.png").convert(),
-                        Button.EXIT: pygame.image.load("assets/Exit_Button_Base.png").convert(),
-                        Button.TUTORIAL: pygame.image.load("assets/Tutorial_Button_Base.png").convert(),
-                        Button.CREDITS: pygame.image.load("assets/Credits_Button_Base.png").convert(),
-                        Button.DIFFICULTY_TOGGLE: pygame.image.load("assets/Difficulty_Button_Base.png").convert(),
-                        Button.RESOLUTION_TOGGLE: pygame.image.load("assets/Resolution_Button_Base.png").convert(),
-                        Button.THEME_TOGGLE: pygame.image.load("assets/Style_Button_Base.png").convert(),
-                        Button.BACK_TO_MAIN: pygame.image.load("assets/Back_Button_Base.png").convert(),
-                        Button.ACCEPT_SETTINGS: pygame.image.load("assets/Accept_Button_Base.png").convert(),
-                        Button.RESET_BOARD: pygame.image.load("assets/Refresh_Button_Base.png").convert()}
+    standard_buttons = {ButtonFlag.PLAY: pygame.image.load("assets/Play_Button_Base.png").convert(),
+                        ButtonFlag.OPTIONS: pygame.image.load("assets/Options_Button_Base.png").convert(),
+                        ButtonFlag.EXIT: pygame.image.load("assets/Exit_Button_Base.png").convert(),
+                        ButtonFlag.TUTORIAL: pygame.image.load("assets/Tutorial_Button_Base.png").convert(),
+                        ButtonFlag.CREDITS: pygame.image.load("assets/Credits_Button_Base.png").convert(),
+                        ButtonFlag.DIFFICULTY_TOGGLE: pygame.image.load("assets/Difficulty_Button_Base.png").convert(),
+                        ButtonFlag.RESOLUTION_TOGGLE: pygame.image.load("assets/Resolution_Button_Base.png").convert(),
+                        ButtonFlag.THEME_TOGGLE: pygame.image.load("assets/Style_Button_Base.png").convert(),
+                        ButtonFlag.BACK_TO_MAIN: pygame.image.load("assets/Back_Button_Base.png").convert(),
+                        ButtonFlag.ACCEPT_SETTINGS: pygame.image.load("assets/Accept_Button_Base.png").convert(),
+                        ButtonFlag.RESET_BOARD: pygame.image.load("assets/Refresh_Button_Base.png").convert()}
 
-    highlighted_buttons = {Button.PLAY: pygame.image.load("assets/Play_Button_Selected.png").convert(),
-                           Button.OPTIONS: pygame.image.load("assets/Options_Button_Selected.png").convert(),
-                           Button.EXIT: pygame.image.load("assets/Exit_Button_Selected.png").convert(),
-                           Button.TUTORIAL: pygame.image.load("assets/Tutorial_Button_Selected.png").convert(),
-                           Button.CREDITS: pygame.image.load("assets/Credits_Button_Selected.png").convert(),
-                           Button.DIFFICULTY_TOGGLE: pygame.image.load(
+    highlighted_buttons = {ButtonFlag.PLAY: pygame.image.load("assets/Play_Button_Selected.png").convert(),
+                           ButtonFlag.OPTIONS: pygame.image.load("assets/Options_Button_Selected.png").convert(),
+                           ButtonFlag.EXIT: pygame.image.load("assets/Exit_Button_Selected.png").convert(),
+                           ButtonFlag.TUTORIAL: pygame.image.load("assets/Tutorial_Button_Selected.png").convert(),
+                           ButtonFlag.CREDITS: pygame.image.load("assets/Credits_Button_Selected.png").convert(),
+                           ButtonFlag.DIFFICULTY_TOGGLE: pygame.image.load(
                                "assets/Difficulty_Button_Selected.png").convert(),
-                           Button.RESOLUTION_TOGGLE: pygame.image.load(
+                           ButtonFlag.RESOLUTION_TOGGLE: pygame.image.load(
                                "assets/Resolution_Button_Selected.png").convert(),
-                           Button.THEME_TOGGLE: pygame.image.load("assets/Style_Button_Selected.png").convert(),
-                           Button.BACK_TO_MAIN: pygame.image.load("assets/Back_Button_Selected.png").convert(),
-                           Button.ACCEPT_SETTINGS: pygame.image.load("assets/Accept_Button_Selected.png").convert(),
-                           Button.RESET_BOARD: pygame.image.load("assets/Refresh_Button_Selected.png").convert()}
+                           ButtonFlag.THEME_TOGGLE: pygame.image.load("assets/Style_Button_Selected.png").convert(),
+                           ButtonFlag.BACK_TO_MAIN: pygame.image.load("assets/Back_Button_Selected.png").convert(),
+                           ButtonFlag.ACCEPT_SETTINGS: pygame.image.load("assets/Accept_Button_Selected.png").convert(),
+                           ButtonFlag.RESET_BOARD: pygame.image.load("assets/Refresh_Button_Selected.png").convert()}
 
     local_buttons = ButtonContainer(standard=standard_buttons, highlighted=highlighted_buttons)
 

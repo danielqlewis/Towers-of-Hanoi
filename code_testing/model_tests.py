@@ -1,6 +1,6 @@
 from models.game_model import GameModel
 from models.menu_model import MenuModel
-from constants import MenuState, MenuTheme, Button
+from constants import MenuState, MenuTheme, ButtonFlag
 
 
 # GameModel testing ####################################################################################################
@@ -87,14 +87,14 @@ def test_menu_model_navigation():
 def test_menu_model_highlight_toggle():
     test_model = MenuModel()
 
-    test_model.set_highlight(Button.PLAY)
-    assert test_model.highlighed_button == Button.PLAY
+    test_model.set_highlight(ButtonFlag.PLAY)
+    assert test_model.highlighed_button == ButtonFlag.PLAY
     test_model.deset_highlight()
     assert test_model.highlighed_button is None
-    test_model.set_highlight(Button.OPTIONS)
-    assert test_model.highlighed_button == Button.OPTIONS
-    test_model.set_highlight(Button.TUTORIAL)
-    assert test_model.highlighed_button == Button.TUTORIAL
+    test_model.set_highlight(ButtonFlag.OPTIONS)
+    assert test_model.highlighed_button == ButtonFlag.OPTIONS
+    test_model.set_highlight(ButtonFlag.TUTORIAL)
+    assert test_model.highlighed_button == ButtonFlag.TUTORIAL
 
 
 def test_menu_model_settings_cycle():

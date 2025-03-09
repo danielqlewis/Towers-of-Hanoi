@@ -14,7 +14,7 @@ class MenuTheme(Enum):
     BLUE = 2
 
 
-class Button(Enum):
+class ButtonFlag(Enum):
     PLAY = 0
     OPTIONS = 1
     EXIT = 2
