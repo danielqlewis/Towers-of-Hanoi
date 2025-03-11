@@ -36,13 +36,6 @@ class ButtonContainer:
     """
 
     def __init__(self, flag: ButtonFlag, position: Optional[Tuple[int, int]] = None):
-        """
-        Initialize a button container.
-
-        Args:
-            flag (ButtonFlag): The type of button
-            position (Optional[Tuple[int, int]]): The button's position. If None, uses predefined position.
-        """
         self.flag = flag
 
         # Determine button size based on type
@@ -66,13 +59,4 @@ class ButtonContainer:
 
     @classmethod
     def create_buttons(cls, button_flags):
-        """
-        Create multiple button containers at once.
-
-        Args:
-            button_flags (List[ButtonFlag]): The types of buttons to create
-
-        Returns:
-            List[ButtonContainer]: The created buttons
-        """
         return [cls(flag) for flag in button_flags]

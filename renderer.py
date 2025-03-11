@@ -26,12 +26,19 @@ class GameRenderer:
         screen.blit(button_image, button_pos)
 
     def _draw_settings_indicators(self, model, screen):
-        active_theme_indicator = self.assets.setting_indicators.theme[model.settings_select_display[0]]
-        active_resolution_indicator = self.assets.setting_indicators.resolution[model.settings_select_display[1]]
-        active_difficulty_indicator = self.assets.setting_indicators.difficulty[model.settings_select_display[2]]
-        screen.blit(active_difficulty_indicator, [550, 160])
-        screen.blit(active_resolution_indicator, [550, 300])
-        screen.blit(active_theme_indicator, [550, 420])
+        INDICATOR_POSITIONS = {
+            "difficulty": (550, 160),
+            "resolution": (550, 300),
+            "theme": (550, 420)
+        }
+
+        theme_indicator = self.assets.setting_indicators.theme[model.settings_select_display[0]]
+        resolution_indicator = self.assets.setting_indicators.resolution[model.settings_select_display[1]]
+        difficulty_indicator = self.assets.setting_indicators.difficulty[model.settings_select_display[2]]
+
+        screen.blit(difficulty_indicator, INDICATOR_POSITIONS["difficulty"])
+        screen.blit(resolution_indicator, INDICATOR_POSITIONS["resolution"])
+        screen.blit(theme_indicator, INDICATOR_POSITIONS["theme"])
 
 
     def _draw_tutorial(self, model, screen):
@@ -47,16 +54,22 @@ class GameRenderer:
         if model.current_menu == MenuState.TUTORIAL:
             self._draw_tutorial(model, screen)
 
-
     def _draw_single_disc(self, tower, disc_size, height, highlight, screen):
-        TOWER_CENTERX = [192, 480, 768]
-        if highlight:
-            active_image = self.assets.discs.highlighted[disc_size]
-        else:
-            active_image = self.assets.discs.standard[disc_size]
-        active_x = TOWER_CENTERX[tower] - 43 - (21 * disc_size)
-        active_y = 587 - 71 - (69 * height)
-        screen.blit(active_image, [active_x, active_y])
+        TOWER_CENTERS = [192, 480, 768]  # X-coordinates of tower centers
+        BASE_DISC_WIDTH = 43  # Half-width of the smallest disc
+        DISC_WIDTH_INCREMENT = 21  # How much wider each size gets
+        DISC_HEIGHT = 69  # Height of each disc
+        BASE_Y = 516  # Y-coordinate of the top of the lowest disc
+
+        # Select the appropriate disc image
+        disc_image = self.assets.discs.highlighted[disc_size] if highlight else self.assets.discs.standard[disc_size]
+
+        # Calculate positions
+        x_position = TOWER_CENTERS[tower] - BASE_DISC_WIDTH - (DISC_WIDTH_INCREMENT * disc_size)
+        y_position = BASE_Y - (DISC_HEIGHT * height)
+
+        # Draw the disc
+        screen.blit(disc_image, [x_position, y_position])
 
 
     def _draw_game_discs(self, model, screen):

@@ -32,7 +32,7 @@ class GameModel:
         self.towers = ([x for x in range(disc_num - 1, -1, -1)], [], [])
 
     def set_highlight(self, new_highlight: ButtonFlag) -> None:
-        self.highlighed_button = new_highlight
+        self.highlighted_button = new_highlight
 
     def deset_highlight(self) -> None:
-        self.highlighed_button = None
+        self.highlighted_button = None
