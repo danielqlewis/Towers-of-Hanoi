@@ -11,12 +11,13 @@ class GameModel:
         self.selected_tower = 0
 
     def check_move_legal(self, from_tower: int, to_tower: int) -> bool:
+        if not self.towers[from_tower]:
+            return False
+
         if not self.towers[to_tower]:
             return True
-        elif not self.towers[from_tower]:
-            return False
-        else:
-            return self.towers[from_tower][-1] < self.towers[to_tower][-1]
+
+        return self.towers[from_tower][-1] < self.towers[to_tower][-1]
 
     def move_disc(self, from_tower: int, to_tower: int) -> None:
         moved_disc = self.towers[from_tower].pop()
