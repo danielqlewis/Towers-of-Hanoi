@@ -53,6 +53,16 @@ def run_program():
         if controller.exit_flag:
             break
 
+        if controller.asset_package_updated:
+            active_theme = controller.model.settings["theme"]
+            renderer = GameRenderer(build_asset_container(active_theme))
+            controller.asset_package_updated = False
+
+        if controller.resolution_updated:
+            active_resolution = controller.model.settings["resolution"]
+            screen = pygame.display.set_mode(active_resolution)
+            controller.resolution_updated = False
+
         if controller.next_state is not None:
             current_state = controller.next_state
             if current_state == ProgramState.MENU:

@@ -8,6 +8,8 @@ class ProgramController:
         self.model_updated = False
         self.next_state = None
         self.exit_flag = False
+        self.asset_package_updated = False
+        self.resolution_updated = False
 
     def _update_highlight(self, cursor_position):
         if self.model.highlighted_button:
@@ -55,6 +57,10 @@ class ProgramController:
             elif self.model.highlighted_button.flag == ButtonFlag.BACK_TO_MAIN:
                 self.model.update_menu_state(MenuState.MAIN)
             elif self.model.highlighted_button.flag == ButtonFlag.ACCEPT_SETTINGS:
+                if self.model.settings["theme"] != self.model.settings_select_display[0]:
+                    self.asset_package_updated = True
+                if self.model.settings["resolution"] != self.model.settings_select_display[1]:
+                    self.resolution_updated = True
                 self.model.implement_displayed_settings()
                 self.model.update_menu_state(MenuState.MAIN)
 
