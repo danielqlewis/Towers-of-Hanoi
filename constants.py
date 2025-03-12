@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class ProgramState(Enum):
+    MENU = 0
+    GAME = 1
+
+
 class MenuState(Enum):
     MAIN = 0
     OPTIONS = 1
@@ -26,5 +31,3 @@ class ButtonFlag(Enum):
     BACK_TO_MAIN = 8
     ACCEPT_SETTINGS = 9
     RESET_BOARD = 10
-
-

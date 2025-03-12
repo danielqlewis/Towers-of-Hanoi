@@ -18,7 +18,7 @@ class MenuModel:
         self.update_menu_state(MenuState.MAIN)
         self.active_buttons = []
 
-        self.highlighed_button = None
+        self.highlighted_button = None
         self.settings_select_display = [MenuTheme.STANDARD, (960, 640), 3]
 
         self.tutorial_slide = 0
