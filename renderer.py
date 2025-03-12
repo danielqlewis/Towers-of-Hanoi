@@ -1,5 +1,5 @@
 import pygame
-from constants import MenuState, ButtonFlag
+from constants import MenuState, ButtonFlag, GameNotification
 
 
 class GameRenderer:
@@ -87,9 +87,26 @@ class GameRenderer:
                     highlight = False
                 self._draw_single_disc(tower_indx, active_tower[disc_indx], disc_indx, highlight, screen)
 
+    def _draw_game_notification(self, model, screen):
+        if model.notification == GameNotification.ILLEGAL_MOVE:
+            notification_image = self.assets.game_notifications.illegal_move
+            notification_top = 20
+        elif model.notification == GameNotification.VICTORY:
+            notification_image = self.assets.game_notifications.victory
+            notification_top = 160
+        else:
+            print("Critical Error")
+            return
+
+        image_size = notification_image.get_size()
+        notifcation_location = [480 - (image_size[0] // 2), notification_top]
+        screen.blit(notification_image, notifcation_location)
+
     def render_game(self, model, screen):
         background_image = self.assets.backgrounds.game_board
         screen.blit(background_image, [0, 0])
         self._draw_game_discs(model, screen)
         for button in model.active_buttons:
             self._draw_button(model, button, screen)
+        if model.notification is not None:
+            self._draw_game_notification(model, screen)

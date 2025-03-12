@@ -5,7 +5,7 @@ from models.menu_model import MenuModel
 from models.game_model import GameModel
 from assets import build_asset_container
 from renderer import GameRenderer
-from constants import MenuTheme, MenuState, ButtonFlag
+from constants import MenuTheme, MenuState, ButtonFlag, GameNotification
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -22,8 +22,10 @@ def test_renderer():
 
     # Set up your game objects
     active_model = GameModel()
+    active_model.notification = GameNotification.VICTORY
     asset_package = build_asset_container(MenuTheme.STANDARD)
     renderer = GameRenderer(asset_package)
+
 
     # Clear screen with a background color
     screen.fill((0, 0, 0))  # Black background
