@@ -58,7 +58,8 @@ def run_program():
             if current_state == ProgramState.MENU:
                 controller.model = menu_model
             elif current_state == ProgramState.GAME:
-                controller.model = GameModel()
+                active_difficulty = controller.model.settings["difficulty"]
+                controller.model = GameModel(active_difficulty)
             controller.next_state = None
             controller.model_updated = True
 
