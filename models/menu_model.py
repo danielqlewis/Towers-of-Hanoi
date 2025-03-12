@@ -35,7 +35,7 @@ class MenuModel:
         self.active_buttons = ButtonContainer.create_buttons(button_list)
 
     def set_highlight(self, new_highlight: ButtonFlag) -> None:
-        self.highlighed_button = new_highlight
+        self.highlighed_button = ButtonContainer(new_highlight)
 
     def deset_highlight(self) -> None:
         self.highlighed_button = None
