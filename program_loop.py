@@ -29,7 +29,6 @@ def run_program():
 
     menu_model = MenuModel()
     menu_model.update_menu_state(MenuState.MAIN)
-    game_model = GameModel()
     renderer = GameRenderer(build_asset_container(MenuTheme.STANDARD))
     controller = ProgramController(menu_model)
 
@@ -59,7 +58,7 @@ def run_program():
             if current_state == ProgramState.MENU:
                 controller.model = menu_model
             elif current_state == ProgramState.GAME:
-                controller.model = game_model
+                controller.model = GameModel()
             controller.next_state = None
             controller.model_updated = True
 

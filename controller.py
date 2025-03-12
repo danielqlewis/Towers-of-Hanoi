@@ -65,7 +65,7 @@ class ProgramController:
                 self.next_state = ProgramState.MENU
             else:
                 self.model.notification = None
-                self.model.updated = True
+                self.model_updated = True
         else:
             if self.model.highlighted_button:
                 self.model_updated = True
@@ -86,10 +86,10 @@ class ProgramController:
                         self.model_updated = True
                         self.model.selected_tower = clicked_tower
                 else:
+                    self.model_updated = True
                     if self.model.selected_tower == clicked_tower:
                         self.model.selected_tower = None
                     else:
-                        self.model_updated = True
                         if self.model.check_move_legal(self.model.selected_tower, clicked_tower):
                             self.model.move_disc(self.model.selected_tower, clicked_tower)
                             self.model.selected_tower = None
