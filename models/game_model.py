@@ -1,4 +1,4 @@
-from constants import ButtonFlag
+from constants import ButtonFlag, GameNotification
 from models.button_container import ButtonContainer
 
 
@@ -9,6 +9,7 @@ class GameModel:
         self.active_buttons = ButtonContainer.create_buttons(button_list)
         self.highlighted_button = None
         self.selected_tower = None
+        self.notification = None
 
     def check_move_legal(self, from_tower: int, to_tower: int) -> bool:
         if not self.towers[from_tower]:
@@ -31,6 +32,12 @@ class GameModel:
     def reset_board(self) -> None:
         disc_num = sum([len(x) for x in self.towers])
         self.towers = ([x for x in range(disc_num - 1, -1, -1)], [], [])
+
+    def set_notification(self, new_notification: GameNotification):
+        self.notification = new_notification
+
+    def deset_notification(self):
+        self.notification = None
 
     def set_highlight(self, new_highlight: ButtonFlag) -> None:
         self.highlighted_button = ButtonContainer(new_highlight)

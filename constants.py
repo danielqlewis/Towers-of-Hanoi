@@ -6,6 +6,11 @@ class ProgramState(Enum):
     GAME = 1
 
 
+class GameNotification(Enum):
+    ILLEGAL_MOVE = 0
+    VICTORY = 1
+
+
 class MenuState(Enum):
     MAIN = 0
     OPTIONS = 1
