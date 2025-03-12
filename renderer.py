@@ -18,7 +18,12 @@ class GameRenderer:
         screen.blit(background_image, [0, 0])
 
     def _draw_button(self, model, button, screen):
-        if model.highlighted_button == button.flag:
+        button_highlighted = False
+        if model.highlighted_button:
+            if model.highlighted_button.flag == button.flag:
+                button_highlighted = True
+
+        if button_highlighted:
             button_image = self.assets.buttons.highlighted[button.flag]
         else:
             button_image = self.assets.buttons.standard[button.flag]
@@ -42,7 +47,7 @@ class GameRenderer:
 
 
     def _draw_tutorial(self, model, screen):
-        slide_image = self.assets.tutorial_images[model.tutorial_slide]
+        slide_image = self.assets.tutorial_images.slides[model.tutorial_slide]
         screen.blit(slide_image, [0, 0])
 
     def render_menu(self, model, screen):

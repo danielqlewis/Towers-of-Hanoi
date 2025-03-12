@@ -22,7 +22,7 @@ class MenuModel:
         self.settings_select_display = [MenuTheme.STANDARD, (960, 640), 3]
 
         self.tutorial_slide = 0
-        self.total_tutorial_slides = 7
+        self.total_tutorial_slides = 8
 
     def update_menu_state(self, new_state: MenuState) -> None:
         self.current_menu = new_state
@@ -43,6 +43,7 @@ class MenuModel:
     def tutorial_step(self) -> bool:
         self.tutorial_slide += 1
         if self.tutorial_slide == self.total_tutorial_slides:
+            self.tutorial_slide = 0
             return True
         else:
             return False

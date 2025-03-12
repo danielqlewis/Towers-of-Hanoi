@@ -1,5 +1,5 @@
 from models.menu_model import MenuModel
-from constants import ProgramState
+from constants import ProgramState, ButtonFlag, MenuState
 
 
 class ProgramController:
@@ -7,8 +7,75 @@ class ProgramController:
         self.model = model
         self.model_updated = False
         self.next_state = None
+        self.exit_flag = False
 
-    def handle_input(self, user_input):
-        if user_input.clicked:
-            self.next_state = ProgramState.GAME if isinstance(self.model, MenuModel) else ProgramState.MENU
+    def _update_highlight(self, cursor_position):
+        if self.model.highlighted_button:
+            if not self.model.highlighted_button.rect.collidepoint(cursor_position):
+                self.model.deset_highlight()
+                self.model_updated = True
+        else:
+            for button in self.model.active_buttons:
+                if button.rect.collidepoint(cursor_position):
+                    self.model.set_highlight(button.flag)
+                    self.model_updated = True
+                    break
+
+    def _resolve_menu_click(self):
+
+        if self.model.current_menu == MenuState.CREDITS:
             self.model_updated = True
+            self.model.update_menu_state(MenuState.MAIN)
+
+        if self.model.current_menu == MenuState.TUTORIAL:
+            self.model_updated = True
+            if self.model.tutorial_step():
+                self.model.update_menu_state(MenuState.MAIN)
+
+        if self.model.highlighted_button:
+            self.model_updated = True
+            if self.model.highlighted_button.flag == ButtonFlag.PLAY:
+                self.next_state = ProgramState.GAME
+            elif self.model.highlighted_button.flag == ButtonFlag.OPTIONS:
+                self.model.reset_displayed_settings()
+                self.model.update_menu_state(MenuState.OPTIONS)
+            elif self.model.highlighted_button.flag == ButtonFlag.EXIT:
+                self.exit_flag = True
+            elif self.model.highlighted_button.flag == ButtonFlag.TUTORIAL:
+                self.model.update_menu_state(MenuState.TUTORIAL)
+            elif self.model.highlighted_button.flag == ButtonFlag.CREDITS:
+                self.model.update_menu_state(MenuState.CREDITS)
+
+            elif self.model.highlighted_button.flag == ButtonFlag.DIFFICULTY_TOGGLE:
+                self.model.cycle_difficulty_displayed()
+            elif self.model.highlighted_button.flag == ButtonFlag.RESOLUTION_TOGGLE:
+                self.model.cycle_resolution_displayed()
+            elif self.model.highlighted_button.flag == ButtonFlag.THEME_TOGGLE:
+                self.model.cycle_theme_displayed()
+            elif self.model.highlighted_button.flag == ButtonFlag.BACK_TO_MAIN:
+                self.model.update_menu_state(MenuState.MAIN)
+            elif self.model.highlighted_button.flag == ButtonFlag.ACCEPT_SETTINGS:
+                print("*implement settings changes")
+                self.model.update_menu_state(MenuState.MAIN)
+
+    def _resolve_gameboard_click(self, cursor_position):
+
+        if self.model.highlighted_button:
+            self.model_updated = True
+            if self.model.highlighted_button.flag == ButtonFlag.BACK_TO_MAIN:
+                self.next_state = ProgramState.MENU
+            if self.model.highlighted_button.flag == ButtonFlag.RESET_BOARD:
+                self.model.reset_board()
+        else:
+            if self.model.selected_tower is None:
+                pass
+            else:
+                pass
+
+    def handle_input(self, user_input, program_state):
+        self._update_highlight(user_input.position)
+        if user_input.clicked:
+            if program_state == ProgramState.MENU:
+                self._resolve_menu_click()
+            elif program_state == ProgramState.GAME:
+                self._resolve_gameboard_click(user_input.position)

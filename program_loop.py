@@ -49,7 +49,10 @@ def run_program():
             break
 
         user_input = process_input(event_list)
-        controller.handle_input(user_input)
+        controller.handle_input(user_input, current_state)
+
+        if controller.exit_flag:
+            break
 
         if controller.next_state is not None:
             current_state = controller.next_state
