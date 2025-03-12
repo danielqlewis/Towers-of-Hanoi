@@ -30,6 +30,7 @@ class GameModel:
         return True
 
     def reset_board(self) -> None:
+        self.selected_tower = None
         disc_num = sum([len(x) for x in self.towers])
         self.towers = ([x for x in range(disc_num - 1, -1, -1)], [], [])
 
