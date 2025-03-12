@@ -1,5 +1,5 @@
 from models.menu_model import MenuModel
-from constants import ProgramState, ButtonFlag, MenuState
+from constants import ProgramState, ButtonFlag, MenuState, GameNotification
 
 
 class ProgramController:
@@ -60,17 +60,43 @@ class ProgramController:
 
     def _resolve_gameboard_click(self, cursor_position):
 
-        if self.model.highlighted_button:
-            self.model_updated = True
-            if self.model.highlighted_button.flag == ButtonFlag.BACK_TO_MAIN:
+        if self.model.notification is not None:
+            if self.model.notification == GameNotification.VICTORY:
                 self.next_state = ProgramState.MENU
-            if self.model.highlighted_button.flag == ButtonFlag.RESET_BOARD:
-                self.model.reset_board()
-        else:
-            if self.model.selected_tower is None:
-                pass
             else:
-                pass
+                self.model.notification = None
+                self.model.updated = True
+        else:
+            if self.model.highlighted_button:
+                self.model_updated = True
+                if self.model.highlighted_button.flag == ButtonFlag.BACK_TO_MAIN:
+                    self.next_state = ProgramState.MENU
+                if self.model.highlighted_button.flag == ButtonFlag.RESET_BOARD:
+                    self.model.reset_board()
+            else:
+                if cursor_position[0] < 320:
+                    clicked_tower = 0
+                elif cursor_position[0] > 640:
+                    clicked_tower = 2
+                else:
+                    clicked_tower = 1
+
+                if self.model.selected_tower is None:
+                    if self.model.towers[clicked_tower]:
+                        self.model_updated = True
+                        self.model.selected_tower = clicked_tower
+                else:
+                    if self.model.selected_tower == clicked_tower:
+                        self.model.selected_tower = None
+                    else:
+                        self.model_updated = True
+                        if self.model.check_move_legal(self.model.selected_tower, clicked_tower):
+                            self.model.move_disc(self.model.selected_tower, clicked_tower)
+                            self.model.selected_tower = None
+                            if self.model.is_complete():
+                                self.model.notification = GameNotification.VICTORY
+                        else:
+                            self.model.notification = GameNotification.ILLEGAL_MOVE
 
     def handle_input(self, user_input, program_state):
         self._update_highlight(user_input.position)
