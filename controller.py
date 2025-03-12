@@ -55,7 +55,7 @@ class ProgramController:
             elif self.model.highlighted_button.flag == ButtonFlag.BACK_TO_MAIN:
                 self.model.update_menu_state(MenuState.MAIN)
             elif self.model.highlighted_button.flag == ButtonFlag.ACCEPT_SETTINGS:
-                print("*implement settings changes")
+                self.model.implement_displayed_settings()
                 self.model.update_menu_state(MenuState.MAIN)
 
     def _resolve_gameboard_click(self, cursor_position):
@@ -99,7 +99,12 @@ class ProgramController:
                             self.model.notification = GameNotification.ILLEGAL_MOVE
 
     def handle_input(self, user_input, program_state):
-        self._update_highlight(user_input.position)
+        skip_highlight = False
+        if program_state == ProgramState.GAME:
+            if self.model.notification is not None:
+                skip_highlight = True
+        if not skip_highlight:
+            self._update_highlight(user_input.position)
         if user_input.clicked:
             if program_state == ProgramState.MENU:
                 self._resolve_menu_click()
