@@ -70,7 +70,7 @@ class ProgramController:
             if self.model.notification == GameNotification.VICTORY:
                 self.next_state = ProgramState.MENU
             else:
-                self.model.notification = None
+                self.model.deset_notification()
                 self.model_updated = True
         else:
             if self.model.highlighted_button:
@@ -100,9 +100,9 @@ class ProgramController:
                             self.model.move_disc(self.model.selected_tower, clicked_tower)
                             self.model.selected_tower = None
                             if self.model.is_complete():
-                                self.model.notification = GameNotification.VICTORY
+                                self.model.set_notification(GameNotification.VICTORY)
                         else:
-                            self.model.notification = GameNotification.ILLEGAL_MOVE
+                            self.model.set_notification(GameNotification.ILLEGAL_MOVE)
 
     def handle_input(self, user_input, program_state):
         skip_highlight = False
