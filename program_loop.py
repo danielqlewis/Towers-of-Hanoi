@@ -13,19 +13,22 @@ class UserInput:
         self.clicked = clicked
 
 
-def process_input(event_list):
-    position = pygame.mouse.get_pos()
+def process_input(event_list, current_screen_size):
+    mouse_pos = pygame.mouse.get_pos()
+    virtual_mouse_pos = (mouse_pos[0] * 960 // current_screen_size[0],
+                         mouse_pos[1] * 640 // current_screen_size[1])
     clicked = False
     for event in event_list:
         if event.type == pygame.MOUSEBUTTONDOWN:
             clicked = True
             break
-    return UserInput(position, clicked)
+    return UserInput(virtual_mouse_pos, clicked)
 
 
 def run_program():
     pygame.init()
     screen = pygame.display.set_mode((960, 640))
+    virtual_screen = pygame.Surface((960, 640))
 
     menu_model = MenuModel()
     menu_model.update_menu_state(MenuState.MAIN)
@@ -47,7 +50,7 @@ def run_program():
         if quit_events:
             break
 
-        user_input = process_input(event_list)
+        user_input = process_input(event_list, screen.get_size())
         controller.handle_input(user_input, current_state)
 
         if controller.exit_flag:
@@ -75,9 +78,12 @@ def run_program():
 
         if controller.model_updated:
             if current_state == ProgramState.MENU:
-                renderer.render_menu(controller.model, screen)
+                renderer.render_menu(controller.model, virtual_screen)
             elif current_state == ProgramState.GAME:
-                renderer.render_game(controller.model, screen)
+                renderer.render_game(controller.model, virtual_screen)
+            current_screen_size = screen.get_size()
+            scaled_screen = pygame.transform.smoothscale(virtual_screen, current_screen_size)
+            screen.blit(scaled_screen, (0, 0))
             pygame.display.flip()
             controller.model_updated = False
 
