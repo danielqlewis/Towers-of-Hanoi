@@ -1,23 +1,17 @@
 import pygame
-from constants import MenuState, ButtonFlag, GameNotification
+from typing import Union
+from constants import MenuState, GameNotification
+from models.button_container import ButtonContainer
+from models.menu_model import MenuModel
+from models.game_model import GameModel
+from assets import AssetsContainer
 
 
 class GameRenderer:
-    def __init__(self, asset_container):
+    def __init__(self, asset_container: AssetsContainer):
         self.assets = asset_container
 
-    def _draw_menu_background(self, model, screen):
-        if model.current_menu == MenuState.MAIN:
-            background_image = self.assets.backgrounds.main_menu
-        elif model.current_menu == MenuState.OPTIONS:
-            background_image = self.assets.backgrounds.options_menu
-        elif model.current_menu == MenuState.CREDITS:
-            background_image = self.assets.backgrounds.credits
-        else:
-            background_image = pygame.Surface((0, 0))
-        screen.blit(background_image, [0, 0])
-
-    def _draw_button(self, model, button, screen):
+    def _draw_button(self, model: Union[MenuModel, GameModel], button: ButtonContainer, screen: pygame.Surface) -> None:
         button_highlighted = False
         if model.highlighted_button:
             if model.highlighted_button.flag == button.flag:
@@ -30,7 +24,20 @@ class GameRenderer:
         button_pos = button.rect.topleft
         screen.blit(button_image, button_pos)
 
-    def _draw_settings_indicators(self, model, screen):
+
+    def _draw_menu_background(self, model: MenuModel, screen: pygame.Surface) -> None:
+        if model.current_menu == MenuState.MAIN:
+            background_image = self.assets.backgrounds.main_menu
+        elif model.current_menu == MenuState.OPTIONS:
+            background_image = self.assets.backgrounds.options_menu
+        elif model.current_menu == MenuState.CREDITS:
+            background_image = self.assets.backgrounds.credits
+        else:
+            background_image = pygame.Surface((0, 0))
+        screen.blit(background_image, [0, 0])
+
+
+    def _draw_settings_indicators(self, model: MenuModel, screen: pygame.Surface) -> None:
         INDICATOR_POSITIONS = {
             "difficulty": (550, 160),
             "resolution": (550, 300),
@@ -46,11 +53,11 @@ class GameRenderer:
         screen.blit(theme_indicator, INDICATOR_POSITIONS["theme"])
 
 
-    def _draw_tutorial(self, model, screen):
+    def _draw_tutorial(self, model: MenuModel, screen: pygame.Surface) -> None:
         slide_image = self.assets.tutorial_images.slides[model.tutorial_slide]
         screen.blit(slide_image, [0, 0])
 
-    def render_menu(self, model, screen):
+    def render_menu(self, model: MenuModel, screen: pygame.Surface) -> None:
         self._draw_menu_background(model, screen)
         for button in model.active_buttons:
             self._draw_button(model, button, screen)
@@ -59,7 +66,7 @@ class GameRenderer:
         if model.current_menu == MenuState.TUTORIAL:
             self._draw_tutorial(model, screen)
 
-    def _draw_single_disc(self, tower, disc_size, height, highlight, screen):
+    def _draw_single_disc(self, tower: int, disc_size: int, height: int, highlight: bool, screen: pygame.Surface) -> None:
         TOWER_CENTERS = [192, 480, 768]  # X-coordinates of tower centers
         BASE_DISC_WIDTH = 43  # Half-width of the smallest disc
         DISC_WIDTH_INCREMENT = 21  # How much wider each size gets
@@ -77,7 +84,7 @@ class GameRenderer:
         screen.blit(disc_image, [x_position, y_position])
 
 
-    def _draw_game_discs(self, model, screen):
+    def _draw_game_discs(self, model: GameModel, screen: pygame.Surface) -> None:
         for tower_indx in range(3):
             active_tower = model.towers[tower_indx]
             for disc_indx in range(len(active_tower)):
@@ -87,7 +94,7 @@ class GameRenderer:
                     highlight = False
                 self._draw_single_disc(tower_indx, active_tower[disc_indx], disc_indx, highlight, screen)
 
-    def _draw_game_notification(self, model, screen):
+    def _draw_game_notification(self, model: GameModel, screen: pygame.Surface) -> None:
         if model.notification == GameNotification.ILLEGAL_MOVE:
             notification_image = self.assets.game_notifications.illegal_move
             notification_top = 20
@@ -102,7 +109,7 @@ class GameRenderer:
         notifcation_location = [480 - (image_size[0] // 2), notification_top]
         screen.blit(notification_image, notifcation_location)
 
-    def render_game(self, model, screen):
+    def render_game(self, model: GameModel, screen: pygame.Surface) -> None:
         background_image = self.assets.backgrounds.game_board
         screen.blit(background_image, [0, 0])
         self._draw_game_discs(model, screen)

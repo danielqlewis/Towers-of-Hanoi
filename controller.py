@@ -1,4 +1,3 @@
-from models.menu_model import MenuModel
 from constants import ProgramState, ButtonFlag, MenuState, GameNotification
 
 

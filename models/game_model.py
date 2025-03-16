@@ -34,10 +34,10 @@ class GameModel:
         disc_num = sum([len(x) for x in self.towers])
         self.towers = ([x for x in range(disc_num - 1, -1, -1)], [], [])
 
-    def set_notification(self, new_notification: GameNotification):
+    def set_notification(self, new_notification: GameNotification) -> None:
         self.notification = new_notification
 
-    def deset_notification(self):
+    def deset_notification(self) -> None:
         self.notification = None
 
     def set_highlight(self, new_highlight: ButtonFlag) -> None:

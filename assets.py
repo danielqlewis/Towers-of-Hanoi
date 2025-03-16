@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import pygame
-from typing import Dict, Tuple
+from typing import Dict, Tuple, TypedDict
 from constants import MenuTheme, ButtonFlag
 
 
@@ -52,7 +52,16 @@ class AssetsContainer:
     tutorial_images: TutorialSlidesContainer
 
 
-def get_theme_specific_assets(theme: MenuTheme):
+class CommonAssets(TypedDict):
+    credits: pygame.Surface
+    button_assets: ButtonContainer
+    disk_assets: DiscContainer
+    setting_indicator_assets: SettingIndicatorContainer
+    notification_assets: GameNotificationContainer
+    tutorial_assets: TutorialSlidesContainer
+
+
+def get_theme_specific_assets(theme: MenuTheme) -> Tuple[pygame.Surface, pygame.Surface, pygame.Surface]:
     if theme == MenuTheme.RED:
         main_menu = pygame.image.load("assets/red/Menu_BG.png").convert()
         options_menu = pygame.image.load("assets/red/Options_BG.png").convert()
@@ -69,7 +78,7 @@ def get_theme_specific_assets(theme: MenuTheme):
     return main_menu, options_menu, game_board
 
 
-def get_common_assets():
+def get_common_assets() -> CommonAssets:
     credits_background = pygame.image.load("assets/Credit_Page.png").convert()
 
     # Buttons###########################################################################################################
@@ -152,32 +161,43 @@ def get_common_assets():
 
     local_tutorials = TutorialSlidesContainer(slides=tutorial_slides)
 
-    return credits_background, local_buttons, local_discs, local_setting_indicators, local_notificatons, local_tutorials
+    return {
+        "credits": credits_background,
+        "button_assets": local_buttons,
+        "disk_assets": local_discs,
+        "setting_indicator_assets": local_setting_indicators,
+        "notification_assets": local_notificatons,
+        "tutorial_assets": local_tutorials
+    }
 
 
 def build_asset_container(theme: MenuTheme) -> AssetsContainer:
-    # get theme specific assets
+    # Get theme specific assets
     try:
         main_menu_background, options_menu_background, game_board_background = get_theme_specific_assets(theme)
     except (pygame.error, FileNotFoundError) as e:
         print(f"Failed to load theme asset: {e}")
         return None
 
-    # get common assets
+    # Get common assets
     try:
-        credits_background, buttons, discs, setting_indicators, notificatons, tutorials = get_common_assets()
+        common_assets: CommonAssets = get_common_assets()
     except (pygame.error, FileNotFoundError) as e:
         print(f"Failed to load common asset: {e}")
         return None
 
-    active_backgrounds = BackgroundContainer(main_menu=main_menu_background,
-                                             options_menu=options_menu_background,
-                                             game_board=game_board_background,
-                                             credits=credits_background)
+    active_backgrounds = BackgroundContainer(
+        main_menu=main_menu_background,
+        options_menu=options_menu_background,
+        game_board=game_board_background,
+        credits=common_assets["credits"]
+    )
 
-    return AssetsContainer(backgrounds=active_backgrounds,
-                           buttons=buttons,
-                           discs=discs,
-                           setting_indicators=setting_indicators,
-                           game_notifications=notificatons,
-                           tutorial_images=tutorials)
+    return AssetsContainer(
+        backgrounds=active_backgrounds,
+        buttons=common_assets["button_assets"],
+        discs=common_assets["disk_assets"],
+        setting_indicators=common_assets["setting_indicator_assets"],
+        game_notifications=common_assets["notification_assets"],
+        tutorial_images=common_assets["tutorial_assets"]
+    )
