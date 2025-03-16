@@ -4,16 +4,14 @@ from models.game_model import GameModel
 from assets import build_asset_container
 from renderer import GameRenderer
 from controller import ProgramController
-from constants import MenuTheme, MenuState, ProgramState
+from constants import MenuTheme, MenuState, ProgramState, UserInput
+from typing import List, Tuple
 
 
-class UserInput:
-    def __init__(self, position=(0, 0), clicked=False):
-        self.position = position  # (x, y) coordinates
-        self.clicked = clicked
 
 
-def process_input(event_list, current_screen_size):
+
+def process_input(event_list: List[pygame.event.Event], current_screen_size: Tuple[int, int]) -> UserInput:
     mouse_pos = pygame.mouse.get_pos()
     virtual_mouse_pos = (mouse_pos[0] * 960 // current_screen_size[0],
                          mouse_pos[1] * 640 // current_screen_size[1])
@@ -22,10 +20,10 @@ def process_input(event_list, current_screen_size):
         if event.type == pygame.MOUSEBUTTONDOWN:
             clicked = True
             break
-    return UserInput(virtual_mouse_pos, clicked)
+    return UserInput(position=virtual_mouse_pos, clicked=clicked)
 
 
-def run_program():
+def run_program() -> None:
     pygame.init()
     screen = pygame.display.set_mode((960, 640))
     virtual_screen = pygame.Surface((960, 640))
@@ -36,7 +34,6 @@ def run_program():
     controller = ProgramController(menu_model)
 
     current_state = ProgramState.MENU
-
 
     running = True
     clock = pygame.time.Clock()

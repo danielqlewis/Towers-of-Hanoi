@@ -1,5 +1,8 @@
 from enum import Enum
+from collections import namedtuple
 
+
+UserInput = namedtuple('UserInput', ['position', 'clicked'])
 
 class ProgramState(Enum):
     MENU = 0

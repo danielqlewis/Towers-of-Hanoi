@@ -1,8 +1,10 @@
-from constants import ProgramState, ButtonFlag, MenuState, GameNotification
+from constants import ProgramState, ButtonFlag, MenuState, GameNotification, UserInput
+from models.menu_model import MenuModel
+from typing import Tuple
 
 
 class ProgramController:
-    def __init__(self, model):
+    def __init__(self, model: MenuModel):
         self.model = model
         self.model_updated = False
         self.next_state = None
@@ -10,7 +12,7 @@ class ProgramController:
         self.asset_package_updated = False
         self.resolution_updated = False
 
-    def _update_highlight(self, cursor_position):
+    def _update_highlight(self, cursor_position: Tuple[int, int]) -> None:
         if self.model.highlighted_button:
             if not self.model.highlighted_button.rect.collidepoint(cursor_position):
                 self.model.deset_highlight()
@@ -22,7 +24,7 @@ class ProgramController:
                     self.model_updated = True
                     break
 
-    def _resolve_menu_click(self):
+    def _resolve_menu_click(self) -> None:
 
         if self.model.current_menu == MenuState.CREDITS:
             self.model_updated = True
@@ -63,7 +65,7 @@ class ProgramController:
                 self.model.implement_displayed_settings()
                 self.model.update_menu_state(MenuState.MAIN)
 
-    def _resolve_gameboard_click(self, cursor_position):
+    def _resolve_gameboard_click(self, cursor_position: Tuple[int, int]) -> None:
 
         if self.model.notification is not None:
             if self.model.notification == GameNotification.VICTORY:
@@ -103,7 +105,7 @@ class ProgramController:
                         else:
                             self.model.set_notification(GameNotification.ILLEGAL_MOVE)
 
-    def handle_input(self, user_input, program_state):
+    def handle_input(self, user_input: UserInput, program_state: ProgramState) -> None:
         skip_highlight = False
         if program_state == ProgramState.GAME:
             if self.model.notification is not None:
