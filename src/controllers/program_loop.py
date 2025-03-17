@@ -1,10 +1,10 @@
 import pygame
-from models.menu_model import MenuModel
-from models.game_model import GameModel
-from assets import build_asset_container
-from renderer import GameRenderer
-from controller import ProgramController
-from constants import MenuTheme, MenuState, ProgramState, UserInput
+from src.models.menu_model import MenuModel
+from src.models.game_model import GameModel
+from src.views.assets import build_asset_container
+from src.views.renderer import GameRenderer
+from .controller import ProgramController
+from src.constants import MenuTheme, MenuState, ProgramState, UserInput
 from typing import List, Tuple
 
 

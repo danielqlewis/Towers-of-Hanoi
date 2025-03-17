@@ -1,5 +1,5 @@
-from constants import ButtonFlag, GameNotification
-from models.button_container import ButtonContainer
+from src.constants import ButtonFlag, GameNotification
+from src.models.button_container import ButtonContainer
 
 
 class GameModel:

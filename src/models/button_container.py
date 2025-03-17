@@ -1,5 +1,5 @@
 from pygame import Rect
-from constants import ButtonFlag
+from src.constants import ButtonFlag
 from typing import Tuple, Dict, List
 
 

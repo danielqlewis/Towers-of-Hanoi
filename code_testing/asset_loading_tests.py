@@ -1,5 +1,5 @@
-from assets import build_asset_container, AssetsContainer
-from constants import MenuTheme, ButtonFlag
+from src.views.assets import build_asset_container, AssetsContainer
+from src.constants import MenuTheme, ButtonFlag
 import pygame
 import os
 import sys

@@ -1,11 +1,10 @@
 import pygame
 import os
 import sys
-from models.menu_model import MenuModel
-from models.game_model import GameModel
-from assets import build_asset_container
-from renderer import GameRenderer
-from constants import MenuTheme, MenuState, ButtonFlag, GameNotification
+from src.models.game_model import GameModel
+from src.views.assets import build_asset_container
+from src.views.renderer import GameRenderer
+from src.constants import MenuTheme, GameNotification
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

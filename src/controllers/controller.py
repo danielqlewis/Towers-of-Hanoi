@@ -1,5 +1,5 @@
-from constants import ProgramState, ButtonFlag, MenuState, GameNotification, UserInput
-from models.menu_model import MenuModel
+from src.constants import ProgramState, ButtonFlag, MenuState, GameNotification, UserInput
+from src.models.menu_model import MenuModel
 from typing import Tuple
 
 

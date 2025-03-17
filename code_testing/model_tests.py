@@ -1,6 +1,6 @@
-from models.game_model import GameModel
-from models.menu_model import MenuModel
-from constants import MenuState, MenuTheme, ButtonFlag
+from src.models.game_model import GameModel
+from src.models.menu_model import MenuModel
+from src.constants import MenuState, MenuTheme, ButtonFlag
 
 
 # GameModel testing ####################################################################################################

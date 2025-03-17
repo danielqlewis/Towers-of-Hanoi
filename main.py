@@ -1,6 +1,6 @@
 import sys
-from validation import check_dependencies, check_assets
-from program_loop import run_program
+from src.utils.validation import check_dependencies, check_assets
+from src.controllers.program_loop import run_program
 
 
 def main():

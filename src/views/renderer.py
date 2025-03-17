@@ -1,10 +1,10 @@
 import pygame
 from typing import Union
-from constants import MenuState, GameNotification
-from models.button_container import ButtonContainer
-from models.menu_model import MenuModel
-from models.game_model import GameModel
-from assets import AssetsContainer
+from src.constants import MenuState, GameNotification
+from src.models.button_container import ButtonContainer
+from src.models.menu_model import MenuModel
+from src.models.game_model import GameModel
+from src.views.assets import AssetsContainer
 
 
 class GameRenderer:
