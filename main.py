@@ -1,6 +1,6 @@
 import sys
 from src.utils.validation import check_dependencies, check_assets
-from src.controllers.program_loop import run_program
+from src.controllers.program_loop import ProgramLoop
 
 
 def main():
@@ -10,7 +10,8 @@ def main():
     if not check_assets():
         sys.exit(1)
 
-    run_program()
+    main_loop = ProgramLoop()
+    main_loop.run_program()
 
 
 if __name__ == "__main__":

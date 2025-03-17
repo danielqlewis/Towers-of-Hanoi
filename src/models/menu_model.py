@@ -24,6 +24,8 @@ class MenuModel:
         self.tutorial_slide = 0
         self.total_tutorial_slides = 8
 
+        self.update_menu_state(MenuState.MAIN)
+
     def update_menu_state(self, new_state: MenuState) -> None:
         self.current_menu = new_state
         if self.current_menu == MenuState.MAIN:
