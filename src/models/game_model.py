@@ -34,6 +34,9 @@ class GameModel:
         disc_num = sum([len(x) for x in self.towers])
         self.towers = ([x for x in range(disc_num - 1, -1, -1)], [], [])
 
+    def set_selected_tower(self, tower):
+        self.selected_tower = tower
+
     def set_notification(self, new_notification: GameNotification) -> None:
         self.notification = new_notification
 

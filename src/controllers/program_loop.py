@@ -52,23 +52,22 @@ class ProgramLoop:
         if self.controller.asset_package_updated:
             active_theme = self.controller.model.settings["theme"]
             self.renderer = GameRenderer(build_asset_container(active_theme))
-            self.controller.asset_package_updated = False
 
         if self.controller.resolution_updated:
             active_resolution = self.controller.model.settings["resolution"]
             self.screen = pygame.display.set_mode(active_resolution)
-            self.controller.resolution_updated = False
+
+        self.controller.reset_settings_update_flags()
 
     def handle_program_state_change(self):
         if self.controller.next_state is not None:
             self.current_state = self.controller.next_state
             if self.current_state == ProgramState.MENU:
-                self.controller.model = self.menu_model
-            elif self.current_state == ProgramState.GAME:
+                new_model = self.menu_model
+            else:
                 active_difficulty = self.controller.model.settings["difficulty"]
-                self.controller.model = GameModel(active_difficulty)
-            self.controller.next_state = None
-            self.controller.model_updated = True
+                new_model = GameModel(active_difficulty)
+            self.controller.update_state(new_model)
 
     def update_and_render(self):
         if self.controller.model_updated:
@@ -76,11 +75,11 @@ class ProgramLoop:
                 self.renderer.render_menu(self.controller.model, self.virtual_screen)
             elif self.current_state == ProgramState.GAME:
                 self.renderer.render_game(self.controller.model, self.virtual_screen)
+            self.controller.reset_render_flag()
             current_screen_size = self.screen.get_size()
             scaled_screen = pygame.transform.smoothscale(self.virtual_screen, current_screen_size)
             self.screen.blit(scaled_screen, (0, 0))
             pygame.display.flip()
-            self.controller.model_updated = False
 
     def run_program(self) -> None:
         self.renderer.render_menu(self.controller.model, self.screen)
