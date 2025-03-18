@@ -70,7 +70,7 @@ def test_menu_model_initialization():
 
     assert test_model.current_menu == MenuState.MAIN
     assert test_model.settings["theme"] == MenuTheme.STANDARD
-    assert test_model.highlighed_button is None
+    assert test_model.highlighted_button is None
     assert test_model.settings_select_display[1] == (960, 640)
     assert test_model.tutorial_slide == 0
 
@@ -88,13 +88,13 @@ def test_menu_model_highlight_toggle():
     test_model = MenuModel()
 
     test_model.set_highlight(ButtonFlag.PLAY)
-    assert test_model.highlighed_button == ButtonFlag.PLAY
+    assert test_model.highlighted_button.flag == ButtonFlag.PLAY
     test_model.deset_highlight()
-    assert test_model.highlighed_button is None
+    assert test_model.highlighted_button is None
     test_model.set_highlight(ButtonFlag.OPTIONS)
-    assert test_model.highlighed_button == ButtonFlag.OPTIONS
+    assert test_model.highlighted_button.flag == ButtonFlag.OPTIONS
     test_model.set_highlight(ButtonFlag.TUTORIAL)
-    assert test_model.highlighed_button == ButtonFlag.TUTORIAL
+    assert test_model.highlighted_button.flag == ButtonFlag.TUTORIAL
 
 
 def test_menu_model_settings_cycle():
@@ -136,6 +136,7 @@ def test_menu_model_implement_settings():
 
 def test_menu_model_tutorial_processing():
     test_model = MenuModel()
+    assert test_model.tutorial_step() is False
     assert test_model.tutorial_step() is False
     assert test_model.tutorial_step() is False
     assert test_model.tutorial_step() is False
