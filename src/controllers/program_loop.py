@@ -9,19 +9,33 @@ from typing import List, Tuple
 
 
 class ProgramLoop:
+    # Class constants
+    VIRTUAL_SCREEN_SIZE = (960, 640)
+    PROGRAM_FPS = 60
+
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((960, 640))
-        self.virtual_screen = pygame.Surface((960, 640))
+        self.screen = pygame.display.set_mode(self.VIRTUAL_SCREEN_SIZE)
+        self.virtual_screen = pygame.Surface(self.VIRTUAL_SCREEN_SIZE)
+
         self.menu_model = MenuModel()
-        self.renderer = GameRenderer(build_asset_container(MenuTheme.STANDARD))
+
+        asset_container = build_asset_container(MenuTheme.STANDARD)
+        if asset_container is None:
+            print("Failed to load assets")
+            pygame.quit()
+            sys.exit(1)
+
+        self.renderer = GameRenderer(asset_container)
         self.controller = ProgramController(self.menu_model)
         self.current_state = ProgramState.MENU
         self.clock = pygame.time.Clock()
         self.running = True
 
+        pygame.display.set_caption("Towers of Hanoi")
+
     @staticmethod
-    def _check_for_exit_events(event_list):
+    def _check_for_exit_events(event_list: List[pygame.event.Event]) -> bool:
         for event in event_list:
             if event.type == pygame.QUIT:
                 return True
@@ -29,17 +43,22 @@ class ProgramLoop:
 
     def process_input(self, event_list: List[pygame.event.Event]) -> UserInput:
         mouse_pos = pygame.mouse.get_pos()
-        current_screen_size = self.screen.get_size()
-        virtual_mouse_pos = (mouse_pos[0] * 960 // current_screen_size[0],
-                             mouse_pos[1] * 640 // current_screen_size[1])
+        virtual_width, virtual_hight = self.VIRTUAL_SCREEN_SIZE
+        current_width, current_hight = self.screen.get_size()
+
+        virtual_x = mouse_pos[0] * virtual_width // current_width
+        virtual_y = mouse_pos[1] * virtual_hight // current_hight
+        virtual_mouse_pos = (virtual_x, virtual_y)
+
         clicked = False
         for event in event_list:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 clicked = True
                 break
+
         return UserInput(position=virtual_mouse_pos, clicked=clicked)
 
-    def handle_user_input(self):
+    def handle_user_input(self) -> bool:
         event_list = pygame.event.get()
         if self._check_for_exit_events(event_list):
             return False
@@ -48,7 +67,7 @@ class ProgramLoop:
         return not self.controller.exit_flag
 
 
-    def check_and_update_settings(self):
+    def check_and_update_settings(self) -> None:
         if self.controller.asset_package_updated:
             active_theme = self.controller.model.settings["theme"]
             self.renderer = GameRenderer(build_asset_container(active_theme))
@@ -59,7 +78,7 @@ class ProgramLoop:
 
         self.controller.reset_settings_update_flags()
 
-    def handle_program_state_change(self):
+    def handle_program_state_change(self) -> None:
         if self.controller.next_state is not None:
             self.current_state = self.controller.next_state
             if self.current_state == ProgramState.MENU:
@@ -69,7 +88,7 @@ class ProgramLoop:
                 new_model = GameModel(active_difficulty)
             self.controller.update_state(new_model)
 
-    def update_and_render(self):
+    def update_and_render(self) -> None:
         if self.controller.model_updated:
             if self.current_state == ProgramState.MENU:
                 self.renderer.render_menu(self.controller.model, self.virtual_screen)
@@ -82,14 +101,14 @@ class ProgramLoop:
             pygame.display.flip()
 
     def run_program(self) -> None:
-        self.renderer.render_menu(self.controller.model, self.screen)
-        pygame.display.flip()
+        self.controller.model_updated = True
+        self.update_and_render()
 
         while self.running:
             self.running = self.handle_user_input()
             self.check_and_update_settings()
             self.handle_program_state_change()
             self.update_and_render()
-            self.clock.tick(60)
+            self.clock.tick(self.PROGRAM_FPS)
 
         pygame.quit()

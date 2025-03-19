@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 import pygame
-from typing import Dict, Tuple, TypedDict
+import logging
+from typing import Dict, Tuple, TypedDict, Optional
 from src.constants import MenuTheme, ButtonFlag
 from src.utils.asset_loader import load_image, load_image_with_alpha
 
+
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class BackgroundContainer:
@@ -56,7 +59,7 @@ class AssetsContainer:
 class CommonAssets(TypedDict):
     credits: pygame.Surface
     button_assets: ButtonContainer
-    disk_assets: DiscContainer
+    disc_assets: DiscContainer
     setting_indicator_assets: SettingIndicatorContainer
     notification_assets: GameNotificationContainer
     tutorial_assets: TutorialSlidesContainer
@@ -83,44 +86,36 @@ def get_common_assets() -> CommonAssets:
     credits_background = load_image("Credit_Page.png")
 
     # Buttons###########################################################################################################
-    standard_buttons = {ButtonFlag.PLAY: load_image("Play_Button_Base.png"),
-                        ButtonFlag.OPTIONS: load_image("Options_Button_Base.png"),
-                        ButtonFlag.EXIT: load_image("Exit_Button_Base.png"),
-                        ButtonFlag.TUTORIAL: load_image("Tutorial_Button_Base.png"),
-                        ButtonFlag.CREDITS: load_image("Credits_Button_Base.png"),
-                        ButtonFlag.DIFFICULTY_TOGGLE: load_image("Difficulty_Button_Base.png"),
-                        ButtonFlag.RESOLUTION_TOGGLE: load_image("Resolution_Button_Base.png"),
-                        ButtonFlag.THEME_TOGGLE: load_image("Style_Button_Base.png"),
-                        ButtonFlag.BACK_TO_MAIN: load_image("Back_Button_Base.png"),
-                        ButtonFlag.ACCEPT_SETTINGS: load_image("Accept_Button_Base.png"),
-                        ButtonFlag.RESET_BOARD: load_image("Refresh_Button_Base.png")}
+    button_mapping = {
+        ButtonFlag.PLAY: "Play",
+        ButtonFlag.OPTIONS: "Options",
+        ButtonFlag.EXIT: "Exit",
+        ButtonFlag.TUTORIAL: "Tutorial",
+        ButtonFlag.CREDITS: "Credits",
+        ButtonFlag.DIFFICULTY_TOGGLE: "Difficulty",
+        ButtonFlag.RESOLUTION_TOGGLE: "Resolution",
+        ButtonFlag.THEME_TOGGLE: "Style",
+        ButtonFlag.BACK_TO_MAIN: "Back",
+        ButtonFlag.ACCEPT_SETTINGS: "Accept",
+        ButtonFlag.RESET_BOARD: "Refresh"
+    }
 
-    highlighted_buttons = {ButtonFlag.PLAY: load_image("Play_Button_Selected.png"),
-                           ButtonFlag.OPTIONS: load_image("Options_Button_Selected.png"),
-                           ButtonFlag.EXIT: load_image("Exit_Button_Selected.png"),
-                           ButtonFlag.TUTORIAL: load_image("Tutorial_Button_Selected.png"),
-                           ButtonFlag.CREDITS: load_image("Credits_Button_Selected.png"),
-                           ButtonFlag.DIFFICULTY_TOGGLE: load_image("Difficulty_Button_Selected.png"),
-                           ButtonFlag.RESOLUTION_TOGGLE: load_image("Resolution_Button_Selected.png"),
-                           ButtonFlag.THEME_TOGGLE: load_image("Style_Button_Selected.png"),
-                           ButtonFlag.BACK_TO_MAIN: load_image("Back_Button_Selected.png"),
-                           ButtonFlag.ACCEPT_SETTINGS: load_image("Accept_Button_Selected.png"),
-                           ButtonFlag.RESET_BOARD: load_image("Refresh_Button_Selected.png")}
+    standard_buttons = {}
+    highlighted_buttons = {}
+
+    for button_flag, button_name in button_mapping.items():
+        standard_buttons[button_flag] = load_image(f"{button_name}_Button_Base.png")
+        highlighted_buttons[button_flag] = load_image(f"{button_name}_Button_Selected.png")
 
     local_buttons = ButtonContainer(standard=standard_buttons, highlighted=highlighted_buttons)
 
     # Discs#############################################################################################################
-    standard_discs = {0: load_image("Plate_0_b.png"),
-                      1: load_image("Plate_1_b.png"),
-                      2: load_image("Plate_2_b.png"),
-                      3: load_image("Plate_3_b.png"),
-                      4: load_image("Plate_4_b.png")}
+    standard_discs = {}
+    highlighted_discs = {}
 
-    highlighted_discs = {0: load_image("Plate_0_s.png"),
-                         1: load_image("Plate_1_s.png"),
-                         2: load_image("Plate_2_s.png"),
-                         3: load_image("Plate_3_s.png"),
-                         4: load_image("Plate_4_s.png")}
+    for i in range(5):
+        standard_discs[i] = load_image(f"Plate_{i}_b.png")
+        highlighted_discs[i] = load_image(f"Plate_{i}_s.png")
 
     local_discs = DiscContainer(standard=standard_discs, highlighted=highlighted_discs)
 
@@ -149,40 +144,35 @@ def get_common_assets() -> CommonAssets:
     local_notificatons = GameNotificationContainer(illegal_move=illegal_move_image, victory=victory_image)
 
     # Tutorial##########################################################################################################
-    tutorial_slides = {0: load_image("Tutorial_1.png"),
-                       1: load_image("Tutorial_2.png"),
-                       2: load_image("Tutorial_3.png"),
-                       3: load_image("Tutorial_4.png"),
-                       4: load_image("Tutorial_5.png"),
-                       5: load_image("Tutorial_6.png"),
-                       6: load_image("Tutorial_7.png"),
-                       7: load_image("Tutorial_8.png")}
+    tutorial_slides = {}
+    for i in range(8):
+        tutorial_slides[i] = load_image(f"Tutorial_{i + 1}.png")
 
     local_tutorials = TutorialSlidesContainer(slides=tutorial_slides)
 
     return {
         "credits": credits_background,
         "button_assets": local_buttons,
-        "disk_assets": local_discs,
+        "disc_assets": local_discs,
         "setting_indicator_assets": local_setting_indicators,
         "notification_assets": local_notificatons,
         "tutorial_assets": local_tutorials
     }
 
 
-def build_asset_container(theme: MenuTheme) -> AssetsContainer:
+def build_asset_container(theme: MenuTheme) -> Optional[AssetsContainer]:
     # Get theme specific assets
     try:
         main_menu_background, options_menu_background, game_board_background = get_theme_specific_assets(theme)
     except (pygame.error, FileNotFoundError) as e:
-        print(f"Failed to load theme asset: {e}")
+        logger.error(f"Failed to load theme asset: {e}")
         return None
 
     # Get common assets
     try:
         common_assets: CommonAssets = get_common_assets()
     except (pygame.error, FileNotFoundError) as e:
-        print(f"Failed to load common asset: {e}")
+        logger.error(f"Failed to load common asset: {e}")
         return None
 
     active_backgrounds = BackgroundContainer(
@@ -195,7 +185,7 @@ def build_asset_container(theme: MenuTheme) -> AssetsContainer:
     return AssetsContainer(
         backgrounds=active_backgrounds,
         buttons=common_assets["button_assets"],
-        discs=common_assets["disk_assets"],
+        discs=common_assets["disc_assets"],
         setting_indicators=common_assets["setting_indicator_assets"],
         game_notifications=common_assets["notification_assets"],
         tutorial_images=common_assets["tutorial_assets"]

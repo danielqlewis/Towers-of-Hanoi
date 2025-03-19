@@ -1,5 +1,6 @@
 from src.constants import ButtonFlag, GameNotification
 from src.models.button_container import ButtonContainer
+from typing import Optional
 
 
 class GameModel:
@@ -34,17 +35,17 @@ class GameModel:
         disc_num = sum([len(x) for x in self.towers])
         self.towers = ([x for x in range(disc_num - 1, -1, -1)], [], [])
 
-    def set_selected_tower(self, tower):
+    def set_selected_tower(self, tower: Optional[int]) -> None:
         self.selected_tower = tower
 
     def set_notification(self, new_notification: GameNotification) -> None:
         self.notification = new_notification
 
-    def deset_notification(self) -> None:
+    def clear_notification(self) -> None:
         self.notification = None
 
     def set_highlight(self, new_highlight: ButtonFlag) -> None:
         self.highlighted_button = ButtonContainer(new_highlight)
 
-    def deset_highlight(self) -> None:
+    def clear_highlight(self) -> None:
         self.highlighted_button = None

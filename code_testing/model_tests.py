@@ -89,7 +89,7 @@ def test_menu_model_highlight_toggle():
 
     test_model.set_highlight(ButtonFlag.PLAY)
     assert test_model.highlighted_button.flag == ButtonFlag.PLAY
-    test_model.deset_highlight()
+    test_model.clear_highlight()
     assert test_model.highlighted_button is None
     test_model.set_highlight(ButtonFlag.OPTIONS)
     assert test_model.highlighted_button.flag == ButtonFlag.OPTIONS

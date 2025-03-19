@@ -1,13 +1,12 @@
 import sys
-from src.utils.validation import check_dependencies, check_assets
+from src.utils.validation import verify_system_setup
 from src.controllers.program_loop import ProgramLoop
 
 
 def main():
-    if not check_dependencies():
-        sys.exit(1)
-
-    if not check_assets():
+    success, message = verify_system_setup()
+    if not success:
+        print(message)
         sys.exit(1)
 
     main_loop = ProgramLoop()

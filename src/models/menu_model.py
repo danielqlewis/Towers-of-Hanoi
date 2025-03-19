@@ -15,7 +15,6 @@ class MenuModel:
         }
 
         self.current_menu = None
-        self.update_menu_state(MenuState.MAIN)
         self.active_buttons = []
 
         self.highlighted_button = None
@@ -25,6 +24,7 @@ class MenuModel:
         self.total_tutorial_slides = 8
 
         self.update_menu_state(MenuState.MAIN)
+
 
     def update_menu_state(self, new_state: MenuState) -> None:
         self.current_menu = new_state
@@ -39,7 +39,7 @@ class MenuModel:
     def set_highlight(self, new_highlight: ButtonFlag) -> None:
         self.highlighted_button = ButtonContainer(new_highlight)
 
-    def deset_highlight(self) -> None:
+    def clear_highlight(self) -> None:
         self.highlighted_button = None
 
     def tutorial_step(self) -> bool:
