@@ -1,4 +1,5 @@
 import pygame
+import logging
 from src.models.menu_model import MenuModel
 from src.models.game_model import GameModel
 from src.views.assets import build_asset_container
@@ -8,31 +9,40 @@ from src.constants import MenuTheme, MenuState, ProgramState, UserInput
 from typing import List, Tuple
 
 
+logger = logging.getLogger(__name__)
+
+
 class ProgramLoop:
     # Class constants
     VIRTUAL_SCREEN_SIZE = (960, 640)
     PROGRAM_FPS = 60
 
     def __init__(self):
-        pygame.init()
-        self.screen = pygame.display.set_mode(self.VIRTUAL_SCREEN_SIZE)
-        self.virtual_screen = pygame.Surface(self.VIRTUAL_SCREEN_SIZE)
+        try:
+            pygame.init()
+            self.screen = pygame.display.set_mode(self.VIRTUAL_SCREEN_SIZE)
+            self.virtual_screen = pygame.Surface(self.VIRTUAL_SCREEN_SIZE)
 
-        self.menu_model = MenuModel()
+            self.menu_model = MenuModel()
 
-        asset_container = build_asset_container(MenuTheme.STANDARD)
-        if asset_container is None:
-            print("Failed to load assets")
-            pygame.quit()
+            asset_container = build_asset_container(MenuTheme.STANDARD)
+            if asset_container is None:
+                print("Failed to load assets")
+                pygame.quit()
+                sys.exit(1)
+
+            self.renderer = GameRenderer(asset_container)
+            self.controller = ProgramController(self.menu_model)
+            self.current_state = ProgramState.MENU
+            self.clock = pygame.time.Clock()
+            self.running = True
+
+            pygame.display.set_caption("Towers of Hanoi")
+
+        except pygame.error as e:
+            logger.error(f"Failed to initialize pygame: {e}")
             sys.exit(1)
 
-        self.renderer = GameRenderer(asset_container)
-        self.controller = ProgramController(self.menu_model)
-        self.current_state = ProgramState.MENU
-        self.clock = pygame.time.Clock()
-        self.running = True
-
-        pygame.display.set_caption("Towers of Hanoi")
 
     @staticmethod
     def _check_for_exit_events(event_list: List[pygame.event.Event]) -> bool:

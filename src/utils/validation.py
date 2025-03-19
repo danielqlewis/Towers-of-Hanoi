@@ -3,7 +3,7 @@ import pygame
 from typing import List, Dict, Tuple, Set, Optional, Union
 import logging
 
-# Set up logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -94,9 +94,6 @@ def _check_common_images(assets_dir: str) -> bool:
         "tutorial": [
             "Tutorial_1.png", "Tutorial_2.png", "Tutorial_3.png", "Tutorial_4.png",
             "Tutorial_5.png", "Tutorial_6.png", "Tutorial_7.png", "Tutorial_8.png",
-            "Tutorial_Standin_1.png", "Tutorial_Standin_2.png", "Tutorial_Standin_3.png",
-            "Tutorial_Standin_4.png", "Tutorial_Standin_5.png", "Tutorial_Standin_6.png",
-            "Tutorial_Standin_7.png", "Tutorial_Standin_8.png"
         ],
         "misc": [
             "Big_X.png", "Credit_Page.png", "Victory.png"
