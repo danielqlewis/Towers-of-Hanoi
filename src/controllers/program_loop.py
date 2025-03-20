@@ -1,4 +1,5 @@
 import pygame
+import sys
 import logging
 from src.models.menu_model import MenuModel
 from src.models.game_model import GameModel

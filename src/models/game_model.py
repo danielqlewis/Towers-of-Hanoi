@@ -1,5 +1,5 @@
 from src.constants import ButtonFlag, GameNotification
-from src.models.button_container import ButtonContainer
+from src.models.button_entity import ButtonEntity
 from typing import Optional
 
 
@@ -7,7 +7,7 @@ class GameModel:
     def __init__(self, disc_num: int = 3):
         self.towers = ([x for x in range(disc_num - 1, -1, -1)], [], [])
         button_list = [ButtonFlag.RESET_BOARD, ButtonFlag.BACK_TO_MAIN]
-        self.active_buttons = ButtonContainer.create_buttons(button_list)
+        self.active_buttons = ButtonEntity.create_buttons(button_list)
         self.highlighted_button = None
         self.selected_tower = None
         self.notification = None
@@ -45,7 +45,7 @@ class GameModel:
         self.notification = None
 
     def set_highlight(self, new_highlight: ButtonFlag) -> None:
-        self.highlighted_button = ButtonContainer(new_highlight)
+        self.highlighted_button = ButtonEntity(new_highlight)
 
     def clear_highlight(self) -> None:
         self.highlighted_button = None

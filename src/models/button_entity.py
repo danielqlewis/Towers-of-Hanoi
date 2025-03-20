@@ -26,7 +26,7 @@ STANDARD_BUTTON_SIZE: Tuple[int, int] = (200, 80)
 SMALL_BUTTON_SIZE: Tuple[int, int] = (75, 75)
 
 
-class ButtonContainer:
+class ButtonEntity:
     """
     Represents a clickable button in the game.
 
@@ -57,5 +57,5 @@ class ButtonContainer:
         self.rect.center = position
 
     @classmethod
-    def create_buttons(cls, button_flags: List[ButtonFlag]) -> List["ButtonContainer"]:
+    def create_buttons(cls, button_flags: List[ButtonFlag]) -> List["ButtonEntity"]:
         return [cls(flag) for flag in button_flags]

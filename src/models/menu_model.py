@@ -1,5 +1,5 @@
 from src.constants import MenuState, MenuTheme, ButtonFlag
-from src.models.button_container import ButtonContainer
+from src.models.button_entity import ButtonEntity
 
 
 class MenuModel:
@@ -34,10 +34,10 @@ class MenuModel:
             button_list = self.option_menu_buttons
         else:
             button_list = []
-        self.active_buttons = ButtonContainer.create_buttons(button_list)
+        self.active_buttons = ButtonEntity.create_buttons(button_list)
 
     def set_highlight(self, new_highlight: ButtonFlag) -> None:
-        self.highlighted_button = ButtonContainer(new_highlight)
+        self.highlighted_button = ButtonEntity(new_highlight)
 
     def clear_highlight(self) -> None:
         self.highlighted_button = None

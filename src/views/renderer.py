@@ -1,7 +1,7 @@
 import pygame
 from typing import Union
 from src.constants import MenuState, GameNotification
-from src.models.button_container import ButtonContainer
+from src.models.button_entity import ButtonEntity
 from src.models.menu_model import MenuModel
 from src.models.game_model import GameModel
 from src.views.assets import AssetsContainer
@@ -29,7 +29,7 @@ class GameRenderer:
     def __init__(self, asset_container: AssetsContainer):
         self.assets = asset_container
 
-    def _draw_button(self, model: Union[MenuModel, GameModel], button: ButtonContainer, screen: pygame.Surface) -> None:
+    def _draw_button(self, model: Union[MenuModel, GameModel], button: ButtonEntity, screen: pygame.Surface) -> None:
         button_highlighted = False
         if model.highlighted_button:
             if model.highlighted_button.flag == button.flag:
