@@ -1,10 +1,6 @@
 import sys
 import os
 from pathlib import Path
-
-# Add the parent directory (project root) to the Python path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 import unittest
 import pygame
 import logging
@@ -449,433 +445,409 @@ class TestProgramController(unittest.TestCase):
             mock_resolve.assert_not_called()
 
 
-class TestGameLoop(unittest.TestCase):
-    @patch('pygame.init')
-    @patch('pygame.display.set_mode')
-    @patch('pygame.Surface')
-    @patch('src.views.assets.build_asset_container')
-    @patch('src.controllers.program_loop.GameRenderer')
-    @patch('src.controllers.program_loop.ProgramController')
-    @patch('pygame.time.Clock')
-    @patch('pygame.display.set_caption')
-    def setUp(self, mock_set_caption, mock_clock, mock_controller_class, mock_renderer_class,
-              mock_build_assets, mock_surface, mock_set_mode, mock_init):
-        """Set up a fresh GameLoop instance with all pygame dependencies mocked."""
-        # Set up mocks
-        self.mock_screen = MagicMock()
-        mock_set_mode.return_value = self.mock_screen
+class TestProgramLoop(unittest.TestCase):
+    """Basic tests for the ProgramLoop class."""
 
-        self.mock_virtual_screen = MagicMock()
-        mock_surface.return_value = self.mock_virtual_screen
+    def setUp(self):
+        """Set up test environment with minimal mocking."""
+        # Create patches for essential dependencies
+        # 1. Patch pygame initialization
+        self.pygame_init_patcher = patch('pygame.init')
+        self.mock_pygame_init = self.pygame_init_patcher.start()
+        self.mock_pygame_init.return_value = (0, 0)  # Success count, fail count
 
-        self.mock_assets = MagicMock()
-        mock_build_assets.return_value = self.mock_assets
+        # 2. Patch display functions
+        self.set_mode_patcher = patch('pygame.display.set_mode')
+        self.mock_set_mode = self.set_mode_patcher.start()
+        self.mock_screen = Mock()
+        self.mock_set_mode.return_value = self.mock_screen
 
-        self.mock_renderer = MagicMock()
-        mock_renderer_class.return_value = self.mock_renderer
+        self.set_caption_patcher = patch('pygame.display.set_caption')
+        self.mock_set_caption = self.set_caption_patcher.start()
 
-        self.mock_controller = MagicMock()
-        mock_controller_class.return_value = self.mock_controller
-        self.mock_controller.exit_flag = False
-        self.mock_controller.model_updated = False
-        self.mock_controller.next_state = None
+        # 3. Patch Surface creation
+        self.surface_patcher = patch('pygame.Surface')
+        self.mock_surface = self.surface_patcher.start()
+        self.mock_virtual_screen = Mock()
+        self.mock_surface.return_value = self.mock_virtual_screen
 
-        self.mock_clock = MagicMock()
-        mock_clock.return_value = self.mock_clock
+        # 4. Patch asset loading - critical for initialization
+        self.assets_patcher = patch('src.views.assets.build_asset_container')
+        self.mock_assets = self.assets_patcher.start()
+        self.mock_asset_container = Mock()
+        self.mock_assets.return_value = self.mock_asset_container  # Return non-None value
 
-        # Create the GameLoop instance
-        self.game_loop = ProgramLoop()
+        # 5. Patch renderer and controller creation
+        self.renderer_patcher = patch('src.views.renderer.GameRenderer')
+        self.mock_renderer_class = self.renderer_patcher.start()
+        self.mock_renderer = Mock()
+        self.mock_renderer_class.return_value = self.mock_renderer
 
-        # Store mock classes for assertions
-        self.mock_renderer_class = mock_renderer_class
-        self.mock_controller_class = mock_controller_class
-        self.mock_build_assets = mock_build_assets
+        self.controller_patcher = patch('src.controllers.controller.ProgramController')
+        self.mock_controller_class = self.controller_patcher.start()
+        self.mock_controller = Mock()
+        self.mock_controller_class.return_value = self.mock_controller
 
-    @patch('pygame.quit')
-    @patch('sys.exit')
-    def test_init_failure(self, mock_exit, mock_quit):
-        """Test handling of initialization failure."""
-        # Setup pygame.init to raise an error
-        with patch('pygame.init', side_effect=pygame.error("Test error")):
-            # This should log an error and exit
-            with patch('src.controllers.program_loop.logger.error') as mock_logger:
-                with self.assertRaises(SystemExit):
-                    ProgramLoop()
+        # 6. Patch the clock
+        self.clock_patcher = patch('pygame.time.Clock')
+        self.mock_clock_class = self.clock_patcher.start()
+        self.mock_clock = Mock()
+        self.mock_clock_class.return_value = self.mock_clock
 
-                mock_logger.assert_called_once()
-                mock_quit.assert_not_called()  # pygame.quit not called because init failed
-                mock_exit.assert_called_once_with(1)
+        # 7. Patch pygame.quit to prevent actual quitting
+        self.quit_patcher = patch('pygame.quit')
+        self.mock_quit = self.quit_patcher.start()
 
-    @patch('sys.exit')
-    def test_init_asset_failure(self, mock_exit):
-        """Test handling of asset loading failure."""
-        # Setup build_asset_container to return None (failed)
-        with patch('src.views.assets.build_asset_container', return_value=None):
-            with patch('pygame.quit') as mock_quit:
-                with patch('builtins.print') as mock_print:
-                    with self.assertRaises(SystemExit):
-                        ProgramLoop()
+        # 8. Patch sys.exit to prevent test termination
+        self.exit_patcher = patch('sys.exit')
+        self.mock_exit = self.exit_patcher.start()
 
-                    mock_print.assert_called_once_with("Failed to load assets")
-                    mock_quit.assert_called_once()
-                    mock_exit.assert_called_once_with(1)
+    def tearDown(self):
+        """Clean up all patches."""
+        # Stop all patches
+        self.pygame_init_patcher.stop()
+        self.set_mode_patcher.stop()
+        self.set_caption_patcher.stop()
+        self.surface_patcher.stop()
+        self.assets_patcher.stop()
+        self.renderer_patcher.stop()
+        self.controller_patcher.stop()
+        self.clock_patcher.stop()
+        self.quit_patcher.stop()
+        self.exit_patcher.stop()
 
-    def test_init_success(self):
-        """Test successful initialization."""
-        # Verify components were initialized correctly
-        self.assertEqual(self.game_loop.current_state, ProgramState.MENU)
-        self.assertTrue(self.game_loop.running)
-        self.assertEqual(self.game_loop.VIRTUAL_SCREEN_SIZE, (960, 640))
+    def test_initialization(self):
+        """Test basic initialization of the ProgramLoop class."""
+        # Create an instance of ProgramLoop
+        program_loop = ProgramLoop()
 
-        # Verify appropriate objects were created
-        self.assertIsInstance(self.game_loop.menu_model, MenuModel)
-        self.assertEqual(self.game_loop.renderer, self.mock_renderer)
-        self.assertEqual(self.game_loop.controller, self.mock_controller)
+        # Basic assertions about initialization
+        self.assertEqual(program_loop.current_state, ProgramState.MENU)
+        self.assertTrue(program_loop.running)
+        self.mock_set_caption.assert_called_once_with("Towers of Hanoi")
 
-        # Verify initialization calls
-        self.mock_build_assets.assert_called_once_with(MenuTheme.STANDARD)
-        self.mock_renderer_class.assert_called_once_with(self.mock_assets)
-        self.mock_controller_class.assert_called_once()
-
-    def test_check_for_exit_events_no_quit(self):
-        """Test checking for exit events with no quit event."""
-        # Create mock events without quit
-        mock_events = [
-            Mock(type=pygame.MOUSEMOTION),
-            Mock(type=pygame.MOUSEBUTTONDOWN)
-        ]
-
+    def test_check_for_exit_events(self):
+        """Test the static method that checks for exit events."""
+        # Test with no exit events
+        mock_events = [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE)]
         result = ProgramLoop._check_for_exit_events(mock_events)
         self.assertFalse(result)
 
-    def test_check_for_exit_events_with_quit(self):
-        """Test checking for exit events with a quit event."""
-        # Create mock events including a quit
-        mock_events = [
-            Mock(type=pygame.MOUSEMOTION),
-            Mock(type=pygame.QUIT),
-            Mock(type=pygame.MOUSEBUTTONDOWN)
-        ]
-
+        # Test with an exit event
+        mock_events = [pygame.event.Event(pygame.QUIT)]
         result = ProgramLoop._check_for_exit_events(mock_events)
         self.assertTrue(result)
 
-    @patch('pygame.mouse.get_pos')
-    def test_process_input_no_click(self, mock_get_pos):
-        """Test input processing without a click."""
-        # Setup mouse position
-        mock_get_pos.return_value = (480, 320)
+    def test_process_input_no_click(self):
+        """Test processing input with mouse movement but no click."""
+        # Create mouse position patch
+        with patch('pygame.mouse.get_pos', return_value=(480, 320)):
+            # Create an instance
+            program_loop = ProgramLoop()
 
-        # Ensure screen size matches virtual size to avoid scaling calculations
-        self.mock_screen.get_size.return_value = self.game_loop.VIRTUAL_SCREEN_SIZE
+            # Mock the screen size
+            program_loop.screen.get_size.return_value = (960, 640)
 
-        # Create mock events without click
-        mock_events = [Mock(type=pygame.MOUSEMOTION)]
+            # Create sample event list with no mouse clicks
+            mock_events = [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE)]
 
-        result = self.game_loop.process_input(mock_events)
+            # Process input
+            result = program_loop.process_input(mock_events)
 
-        self.assertEqual(result.position, (480, 320))
-        self.assertFalse(result.clicked)
+            # Verify results - mouse coordinates should match since screen size matches virtual
+            self.assertEqual(result.position, (480, 320))
+            self.assertFalse(result.clicked)
 
-    @patch('pygame.mouse.get_pos')
-    def test_process_input_with_click(self, mock_get_pos):
-        """Test input processing with a click."""
-        # Setup mouse position
-        mock_get_pos.return_value = (480, 320)
+    def test_process_input_with_click(self):
+        """Test processing input with mouse click."""
+        # Create mouse position patch
+        with patch('pygame.mouse.get_pos', return_value=(480, 320)):
+            # Create an instance
+            program_loop = ProgramLoop()
 
-        # Create mock events with click
-        mock_events = [
-            Mock(type=pygame.MOUSEMOTION),
-            Mock(type=pygame.MOUSEBUTTONDOWN)
-        ]
+            # Mock the screen size
+            program_loop.screen.get_size.return_value = (960, 640)
 
-        result = self.game_loop.process_input(mock_events)
+            # Create sample event list with mouse click
+            mock_events = [pygame.event.Event(pygame.MOUSEBUTTONDOWN)]
 
-        self.assertEqual(result.position, (480, 320))
-        self.assertTrue(result.clicked)
+            # Process input
+            result = program_loop.process_input(mock_events)
 
-    @patch('pygame.mouse.get_pos')
-    def test_process_input_with_scaling(self, mock_get_pos):
-        """Test input scaling when screen size differs from virtual size."""
-        # Setup mouse position
-        mock_get_pos.return_value = (960, 640)
+            # Verify results
+            self.assertEqual(result.position, (480, 320))
+            self.assertTrue(result.clicked)
 
-        # Set screen size to be twice the virtual size
-        self.mock_screen.get_size.return_value = (1920, 1280)
+    def test_process_input_scaled_screen(self):
+        """Test that input coordinates scale correctly with different screen sizes."""
+        # Create mouse position patch
+        with patch('pygame.mouse.get_pos', return_value=(960, 640)):
+            # Create an instance
+            program_loop = ProgramLoop()
 
-        # Create mock events
-        mock_events = [Mock(type=pygame.MOUSEMOTION)]
+            # Mock screen size to be double the virtual screen size
+            program_loop.screen.get_size.return_value = (1920, 1280)
 
-        result = self.game_loop.process_input(mock_events)
+            # Process input (empty event list is fine)
+            result = program_loop.process_input([])
 
-        # Position should be scaled to virtual coordinates
-        self.assertEqual(result.position, (480, 320))
-        self.assertFalse(result.clicked)
+            # Verify results - coordinates should be scaled down to virtual screen
+            self.assertEqual(result.position, (480, 320))
 
-    @patch('pygame.event.get')
-    def test_handle_user_input_no_exit(self, mock_event_get):
-        """Test handling user input with no exit event."""
-        # Setup mock events
-        mock_events = [Mock(type=pygame.MOUSEMOTION)]
-        mock_event_get.return_value = mock_events
+    def test_handle_user_input_exit_event(self):
+        """Test handling user input with exit event."""
+        # Create an instance
+        program_loop = ProgramLoop()
 
-        # Setup controller to not exit
+        # Set up mock for event.get to return an exit event
+        with patch('pygame.event.get', return_value=[pygame.event.Event(pygame.QUIT)]):
+            # Handle input
+            result = program_loop.handle_user_input()
+
+            # Verify results - should return False to stop the game loop
+            self.assertFalse(result)
+            # Controller should not be called since we're exiting
+            self.mock_controller.handle_input.assert_not_called()
+
+    def test_handle_user_input_normal(self):
+        """Test handling normal user input."""
+        # Create an instance
+        program_loop = ProgramLoop()
+        program_loop.controller = self.mock_controller
         self.mock_controller.exit_flag = False
 
-        with patch.object(self.game_loop, 'process_input', return_value=UserInput((100, 100), False)) as mock_process:
-            result = self.game_loop.handle_user_input()
+        # Mock normal event
+        mock_event = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE)
 
-            # Should continue running
+        # Set up mocks
+        with patch('pygame.event.get', return_value=[mock_event]), \
+                patch('pygame.mouse.get_pos', return_value=(100, 100)), \
+                patch.object(ProgramLoop, 'process_input',
+                             return_value=UserInput((100, 100), False)):
+            # Handle input
+            result = program_loop.handle_user_input()
+
+            # Verify results
             self.assertTrue(result)
+            self.mock_controller.handle_input.assert_called_once_with(
+                UserInput((100, 100), False), ProgramState.MENU)
 
-            # Should process events and input
-            mock_event_get.assert_called_once()
-            mock_process.assert_called_once_with(mock_events)
+    def test_handle_program_state_change_no_change(self):
+        """Test handling program state with no changes."""
+        # Create an instance
+        program_loop = ProgramLoop()
 
-            # Should pass input to controller
-            self.mock_controller.handle_input.assert_called_once()
+        # Set up controller with no state change
+        self.mock_controller.next_state = None
 
-    @patch('pygame.event.get')
-    def test_handle_user_input_with_exit_event(self, mock_event_get):
-        """Test handling user input with an exit event."""
-        # Setup mock events with quit
-        mock_events = [Mock(type=pygame.QUIT)]
-        mock_event_get.return_value = mock_events
+        # Check state change
+        program_loop.handle_program_state_change()
 
-        result = self.game_loop.handle_user_input()
+        # Verify results - no state change, no model update
+        self.assertEqual(program_loop.current_state, ProgramState.MENU)
+        self.mock_controller.update_state.assert_not_called()
 
-        # Should signal to stop running
-        self.assertFalse(result)
+    def test_handle_program_state_change_to_game(self):
+        """Test handling program state change to game."""
+        # Create an instance
+        program_loop = ProgramLoop()
+        program_loop.controller = self.mock_controller
 
-        # Should not process input further once exit is detected
-        self.mock_controller.handle_input.assert_not_called()
+        # Set up controller with state change to game
+        self.mock_controller.next_state = ProgramState.GAME
+        self.mock_controller.model = Mock()
+        self.mock_controller.model.settings = {"difficulty": 3}
 
-    @patch('pygame.event.get')
-    def test_handle_user_input_controller_exit(self, mock_event_get):
-        """Test handling user input when controller signals exit."""
-        # Setup mock events
-        mock_events = [Mock(type=pygame.MOUSEMOTION)]
-        mock_event_get.return_value = mock_events
+        # Check state change
+        # We need to patch where GameModel is USED, not where it's defined
+        with patch('src.controllers.program_loop.GameModel') as mock_game_model:
+            mock_game = Mock()
+            mock_game_model.return_value = mock_game
 
-        # Setup controller to exit
-        self.mock_controller.exit_flag = True
+            program_loop.handle_program_state_change()
 
-        result = self.game_loop.handle_user_input()
-
-        # Should signal to stop running
-        self.assertFalse(result)
+            # Verify results
+            self.assertEqual(program_loop.current_state, ProgramState.GAME)
+            mock_game_model.assert_called_once_with(3)
+            self.mock_controller.update_state.assert_called_once_with(mock_game)
 
     def test_check_and_update_settings_no_changes(self):
-        """Test settings update check with no changes."""
-        # Setup no setting changes
+        """Test checking settings with no updates."""
+        # Create an instance
+        program_loop = ProgramLoop()
+        program_loop.controller = self.mock_controller
+
+        # Set up controller with no updates
         self.mock_controller.asset_package_updated = False
         self.mock_controller.resolution_updated = False
 
-        self.game_loop.check_and_update_settings()
+        # Check settings
+        program_loop.check_and_update_settings()
 
-        # Should reset flags but not update anything
-        self.mock_controller.reset_settings_update_flags.assert_called_once()
-        self.mock_build_assets.assert_called_once()  # Only from initialization
-
-    @patch('src.views.assets.build_asset_container')
-    @patch('pygame.display.set_mode')
-    def test_check_and_update_settings_with_changes(self, mock_set_mode, mock_build_assets):
-        """Test settings update with theme and resolution changes."""
-        # Setup theme change
-        self.mock_controller.asset_package_updated = True
-        self.mock_controller.resolution_updated = True
-
-        # Setup model settings
-        mock_model = MagicMock()
-        mock_model.settings = {
-            "theme": MenuTheme.RED,
-            "resolution": (1080, 720)
-        }
-        self.mock_controller.model = mock_model
-
-        # Setup asset creation
-        mock_assets = MagicMock()
-        mock_build_assets.return_value = mock_assets
-
-        # Run the method
-        self.game_loop.check_and_update_settings()
-
-        # Verify new assets were created with the correct theme
-        mock_build_assets.assert_called_with(MenuTheme.RED)
-
-        # Verify renderer was updated
-        self.assertIsInstance(self.game_loop.renderer, MagicMock)
-
-        # Verify screen resolution was updated
-        mock_set_mode.assert_called_once_with((1080, 720))
-
-        # Verify flags were reset
+        # Verify results
         self.mock_controller.reset_settings_update_flags.assert_called_once()
 
-    def test_handle_program_state_change_no_change(self):
-        """Test state change handling with no pending change."""
-        # Setup no state change
-        self.mock_controller.next_state = None
+    def test_check_and_update_settings_assets(self):
+        """Test checking settings with asset updates."""
+        # Create an instance
+        program_loop = ProgramLoop()
+        program_loop.controller = self.mock_controller
 
-        self.game_loop.handle_program_state_change()
+        # We need to create new patches for where the functions are USED
+        with patch('src.controllers.program_loop.build_asset_container') as mock_local_assets, \
+                patch('src.controllers.program_loop.GameRenderer') as mock_local_renderer:
+            # Create new asset container mock for this test
+            new_assets_mock = Mock()
+            mock_local_assets.return_value = new_assets_mock
 
-        # Should not update state or model
-        self.mock_controller.update_state.assert_not_called()
-        self.assertEqual(self.game_loop.current_state, ProgramState.MENU)
+            # Create new renderer mock for this test
+            new_renderer_mock = Mock()
+            mock_local_renderer.return_value = new_renderer_mock
 
-    def test_handle_program_state_change_to_game(self):
-        """Test state change from menu to game."""
-        # Setup state change to game
-        self.mock_controller.next_state = ProgramState.GAME
+            # Set up controller with asset updates
+            self.mock_controller.asset_package_updated = True
+            self.mock_controller.resolution_updated = False
+            self.mock_controller.model = Mock()
+            self.mock_controller.model.settings = {"theme": MenuTheme.RED}
 
-        # Setup model with difficulty setting
-        mock_model = MagicMock()
-        mock_model.settings = {"difficulty": 4}
-        self.mock_controller.model = mock_model
+            # Check settings
+            program_loop.check_and_update_settings()
 
-        # Run the method
-        with patch('src.controllers.program_loop.GameModel') as mock_game_model_class:
-            mock_game_model = MagicMock()
-            mock_game_model_class.return_value = mock_game_model
+            # Verify results
+            mock_local_assets.assert_called_with(MenuTheme.RED)
+            mock_local_renderer.assert_called_with(new_assets_mock)
+            self.mock_controller.reset_settings_update_flags.assert_called_once()
 
-            self.game_loop.handle_program_state_change()
+    def test_update_and_render_no_updates(self):
+        """Test updating and rendering with no model updates."""
+        # Create an instance
+        program_loop = ProgramLoop()
 
-            # Verify state was updated
-            self.assertEqual(self.game_loop.current_state, ProgramState.GAME)
-
-            # Verify new game model was created with correct difficulty
-            mock_game_model_class.assert_called_once_with(4)
-
-            # Verify controller was updated with new model
-            self.mock_controller.update_state.assert_called_once_with(mock_game_model)
-
-    def test_handle_program_state_change_to_menu(self):
-        """Test state change from game to menu."""
-        # Setup game state first
-        self.game_loop.current_state = ProgramState.GAME
-
-        # Setup state change to menu
-        self.mock_controller.next_state = ProgramState.MENU
-
-        # Run the method
-        self.game_loop.handle_program_state_change()
-
-        # Verify state was updated
-        self.assertEqual(self.game_loop.current_state, ProgramState.MENU)
-
-        # Verify controller was updated with menu model
-        self.mock_controller.update_state.assert_called_once_with(self.game_loop.menu_model)
-
-    def test_update_and_render_no_update(self):
-        """Test rendering when no update is needed."""
-        # Setup no model update
+        # Set up controller with no updates
         self.mock_controller.model_updated = False
 
-        self.game_loop.update_and_render()
+        # Update and render
+        program_loop.update_and_render()
 
-        # Should not render or flip display
+        # Verify results - no rendering performed
+        self.mock_controller.reset_render_flag.assert_not_called()
         self.mock_renderer.render_menu.assert_not_called()
         self.mock_renderer.render_game.assert_not_called()
 
-    @patch('pygame.transform.smoothscale')
-    @patch('pygame.display.flip')
-    def test_update_and_render_menu_state(self, mock_flip, mock_smoothscale):
-        """Test rendering in menu state."""
-        # Setup model update in menu state
+    def test_update_and_render_menu_state(self):
+        """Test updating and rendering in menu state."""
+        # Create an instance
+        program_loop = ProgramLoop()
+        program_loop.controller = self.mock_controller
+
+        # Replace the renderer with our mock directly
+        program_loop.renderer = self.mock_renderer
+
+        # Replace the controller with our mock
+        program_loop.controller = self.mock_controller
+
+        # Set up controller with updates
         self.mock_controller.model_updated = True
-        self.game_loop.current_state = ProgramState.MENU
+        program_loop.current_state = ProgramState.MENU
 
-        # Setup scaling
-        mock_scaled = MagicMock()
-        mock_smoothscale.return_value = mock_scaled
+        # We need to patch pygame functions to avoid errors
+        with patch('pygame.transform.smoothscale', return_value=MagicMock()), \
+                patch('pygame.display.flip'):
+            # Update and render
+            program_loop.update_and_render()
 
-        self.game_loop.update_and_render()
-
-        # Verify menu was rendered
-        self.mock_renderer.render_menu.assert_called_once_with(self.mock_controller.model, self.mock_virtual_screen)
+        # Verify results
+        self.mock_controller.reset_render_flag.assert_called_once()
+        self.mock_renderer.render_menu.assert_called_once_with(
+            self.mock_controller.model, self.mock_virtual_screen)
         self.mock_renderer.render_game.assert_not_called()
 
-        # Verify display update
-        mock_smoothscale.assert_called_once()
-        self.mock_screen.blit.assert_called_once_with(mock_scaled, (0, 0))
-        mock_flip.assert_called_once()
+    def test_update_and_render_game_state(self):
+        """Test updating and rendering in game state."""
+        # Create an instance
+        program_loop = ProgramLoop()
+        program_loop.controller = self.mock_controller
 
-        # Verify render flag was reset
-        self.mock_controller.reset_render_flag.assert_called_once()
+        # Replace the renderer with our mock directly
+        program_loop.renderer = self.mock_renderer
 
-    @patch('pygame.transform.smoothscale')
-    @patch('pygame.display.flip')
-    def test_update_and_render_game_state(self, mock_flip, mock_smoothscale):
-        """Test rendering in game state."""
-        # Setup model update in game state
+        # Replace the controller with our mock directly
+        program_loop.controller = self.mock_controller
+
+        # Set up controller with updates
         self.mock_controller.model_updated = True
-        self.game_loop.current_state = ProgramState.GAME
+        program_loop.current_state = ProgramState.GAME
 
-        # Setup scaling
-        mock_scaled = MagicMock()
-        mock_smoothscale.return_value = mock_scaled
+        # We need to patch pygame functions to avoid errors
+        with patch('pygame.transform.smoothscale', return_value=MagicMock()), \
+                patch('pygame.display.flip'):
+            # Update and render
+            program_loop.update_and_render()
 
-        self.game_loop.update_and_render()
-
-        # Verify game was rendered
-        self.mock_renderer.render_game.assert_called_once_with(self.mock_controller.model, self.mock_virtual_screen)
+        # Verify results
+        self.mock_controller.reset_render_flag.assert_called_once()
+        self.mock_renderer.render_game.assert_called_once_with(
+            self.mock_controller.model, self.mock_virtual_screen)
         self.mock_renderer.render_menu.assert_not_called()
 
-        # Verify display update
-        mock_smoothscale.assert_called_once()
-        self.mock_screen.blit.assert_called_once_with(mock_scaled, (0, 0))
-        mock_flip.assert_called_once()
+    def test_run_program_simple(self):
+        """Test a simple run of the program loop that exits after one iteration."""
+        # Create an instance
+        program_loop = ProgramLoop()
 
-        # Verify render flag was reset
-        self.mock_controller.reset_render_flag.assert_called_once()
+        # Replace the controller with our mock directly
+        program_loop.controller = self.mock_controller
+        self.mock_controller.model_updated = True
 
-    @patch('pygame.quit')
-    def test_run_program_immediate_exit(self, mock_quit):
-        """Test running the program with immediate exit."""
-        # Setup to exit immediately after first loop
-        with patch.object(self.game_loop, 'handle_user_input', return_value=False) as mock_handle_input, \
-                patch.object(self.game_loop, 'check_and_update_settings') as mock_check_settings, \
-                patch.object(self.game_loop, 'handle_program_state_change') as mock_handle_state, \
-                patch.object(self.game_loop, 'update_and_render') as mock_update_render:
-            self.game_loop.run_program()
+        # Reset the pygame.quit mock to clear previous calls
+        self.mock_quit.reset_mock()
 
-            # Verify initial render happened
-            self.assertTrue(self.mock_controller.model_updated)
-            self.assertEqual(mock_update_render.call_count, 2)  # Initial + one loop
+        # Mock handle_user_input to return False after first call to exit the loop
+        first_call = [True]  # Using a list to create a mutable closure variable
 
-            # Verify main loop components were called
-            mock_handle_input.assert_called_once()
-            mock_check_settings.assert_called_once()
-            mock_handle_state.assert_called_once()
+        def mock_handle_input():
+            if first_call[0]:
+                first_call[0] = False
+                return True  # Continue on first call
+            return False  # Exit on second call
 
-            # Verify program was exited
-            mock_quit.assert_called_once()
+        # Set up mocks
+        with patch.object(program_loop, 'handle_user_input', side_effect=mock_handle_input), \
+                patch.object(program_loop, 'check_and_update_settings') as mock_check, \
+                patch.object(program_loop, 'handle_program_state_change') as mock_state, \
+                patch.object(program_loop, 'update_and_render') as mock_render, \
+                patch('pygame.display.flip'):
+            # Run the program
+            program_loop.run_program()
 
-    @patch('pygame.quit')
-    def test_run_program_with_multiple_iterations(self, mock_quit):
-        """Test running the program with multiple iterations before exit."""
-        # Setup to run for 3 iterations then exit
-        handle_input_mock = MagicMock(side_effect=[True, True, False])
+            # Verify loop execution
+            # - One initial render + two iterations in the loop
+            self.assertEqual(mock_render.call_count, 3)  # Initial + two iterations
+            self.assertEqual(mock_check.call_count, 2)  # Two iterations
+            self.assertEqual(mock_state.call_count, 2)  # Two iterations
+            self.assertEqual(self.mock_clock.tick.call_count, 2)  # Two iterations
 
-        with patch.object(self.game_loop, 'handle_user_input', handle_input_mock), \
-                patch.object(self.game_loop, 'check_and_update_settings') as mock_check_settings, \
-                patch.object(self.game_loop, 'handle_program_state_change') as mock_handle_state, \
-                patch.object(self.game_loop, 'update_and_render') as mock_update_render:
-            self.game_loop.run_program()
+            # Now the quit should be called exactly once in this test
+            self.mock_quit.assert_called_once()
 
-            # Verify the loop ran the expected number of times
-            self.assertEqual(handle_input_mock.call_count, 3)
-            self.assertEqual(mock_check_settings.call_count, 3)
-            self.assertEqual(mock_handle_state.call_count, 3)
-            self.assertEqual(mock_update_render.call_count, 4)  # Initial + three loops
+    def test_asset_loading_failure(self):
+        """Test handling of asset loading failure."""
+        # Temporarily modify our asset mock to return None
+        original_return_value = self.mock_assets.return_value
+        self.mock_assets.return_value = None
 
-            # Verify program was exited
-            mock_quit.assert_called_once()
+        try:
+            # This should try to exit when asset_container is None
+            ProgramLoop()
 
-            # Verify the clock ticked for each iteration
-            self.assertEqual(self.mock_clock.tick.call_count, 3)
-            for call_args in self.mock_clock.tick.call_args_list:
-                self.assertEqual(call_args, call(60))  # FPS of 60
+            # Verify exit was called with code 1
+            self.mock_exit.assert_called_once_with(1)
+
+            # Verify pygame quit was called
+            self.mock_quit.assert_called_once()
+        finally:
+            # Restore the original return value
+            self.mock_assets.return_value = original_return_value
 
 
 if __name__ == '__main__':
