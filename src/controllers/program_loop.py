@@ -81,7 +81,8 @@ class ProgramLoop:
     def check_and_update_settings(self) -> None:
         if self.controller.asset_package_updated:
             active_theme = self.controller.model.settings["theme"]
-            self.renderer = GameRenderer(build_asset_container(active_theme))
+            new_container = build_asset_container(active_theme)
+            self.renderer.update_assets(new_container)
 
         if self.controller.resolution_updated:
             active_resolution = self.controller.model.settings["resolution"]

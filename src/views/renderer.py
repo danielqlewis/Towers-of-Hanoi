@@ -29,6 +29,9 @@ class GameRenderer:
     def __init__(self, asset_container: AssetsContainer):
         self.assets = asset_container
 
+    def update_assets(self, asset_container: AssetsContainer):
+        self.assets = asset_container
+
     def _draw_button(self, model: Union[MenuModel, GameModel], button: ButtonEntity, screen: pygame.Surface) -> None:
         button_highlighted = False
         if model.highlighted_button:

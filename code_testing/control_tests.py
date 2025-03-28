@@ -691,18 +691,16 @@ class TestProgramLoop(unittest.TestCase):
         """Test checking settings with asset updates."""
         # Create an instance
         program_loop = ProgramLoop()
-        program_loop.controller = self.mock_controller
 
-        # We need to create new patches for where the functions are USED
-        with patch('src.controllers.program_loop.build_asset_container') as mock_local_assets, \
-                patch('src.controllers.program_loop.GameRenderer') as mock_local_renderer:
+        # Replace the controller and renderer with our mocks
+        program_loop.controller = self.mock_controller
+        program_loop.renderer = self.mock_renderer
+
+        # Create patch for where build_asset_container is USED
+        with patch('src.controllers.program_loop.build_asset_container') as mock_local_assets:
             # Create new asset container mock for this test
             new_assets_mock = Mock()
             mock_local_assets.return_value = new_assets_mock
-
-            # Create new renderer mock for this test
-            new_renderer_mock = Mock()
-            mock_local_renderer.return_value = new_renderer_mock
 
             # Set up controller with asset updates
             self.mock_controller.asset_package_updated = True
@@ -715,7 +713,7 @@ class TestProgramLoop(unittest.TestCase):
 
             # Verify results
             mock_local_assets.assert_called_with(MenuTheme.RED)
-            mock_local_renderer.assert_called_with(new_assets_mock)
+            self.mock_renderer.update_assets.assert_called_once_with(new_assets_mock)
             self.mock_controller.reset_settings_update_flags.assert_called_once()
 
     def test_update_and_render_no_updates(self):
