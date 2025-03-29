@@ -194,7 +194,6 @@ The module provides two primary rendering methods:
 
 For drawing game elements, the renderer uses carefully calculated positioning based on class constants. The Towers of Hanoi board is drawn with precise positioning for each disc, with the size of discs represented visually based on their numerical value in the model. When a tower or disc is selected, it's highlighted to provide visual feedback to the user.
 
-The module demonstrates a clean separation of concerns, focusing exclusively on visualization without any knowledge of how user input is processed or how the game logic works.
 
 ### `controller` Module
 
@@ -205,7 +204,7 @@ The `controller` module houses the `ProgramController` class, which serves as th
 - Updates the currently active model (menu or game) based on input
 - Maintains state transition information via the `next_state` attribute
 - Handles button interactions for both menu and game states
-- Implements game logic for tower selection and disc movement
+- Makes appropriate calls to the game model to handle game logic for tower selection and disc movement
 - Manages game notifications (victory, illegal moves)
 - Tracks settings changes that require updates to assets or display
 
