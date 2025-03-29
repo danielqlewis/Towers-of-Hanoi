@@ -125,7 +125,7 @@ The `game_model` module implements the core data structure and logic for the Tow
 
 The module represents the game state with elegant simplicity:
 - The three towers are stored as a tuple of three lists
-- Discs are represented as integers (smaller numbers represent larger discs)
+- Discs are represented as integers (smaller numbers represent smaller discs)
 - The first tower is initialized with discs in descending order (largest to smallest)
 
 Each new game creates a fresh `GameModel` instance with the specified number of discs (default is 3), allowing for variable difficulty levels. The model focuses exclusively on maintaining valid game state, with all game rules being enforced through the `check_move_legal` method that ensures the fundamental rule of Towers of Hanoi: a larger disc cannot be placed on a smaller one.
