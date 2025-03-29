@@ -10,6 +10,15 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class BackgroundContainer:
+    """
+    Container for background images used across different game states.
+
+    Attributes:
+        main_menu: Background image for the main menu screen.
+        options_menu: Background image for the options menu screen.
+        game_board: Background image for the game board screen.
+        credits: Background image for the credits screen.
+    """
     main_menu: pygame.Surface
     options_menu: pygame.Surface
     game_board: pygame.Surface
@@ -18,18 +27,40 @@ class BackgroundContainer:
 
 @dataclass(frozen=True)
 class ButtonContainer:
+    """
+    Container for button images in normal and highlighted states.
+
+    Attributes:
+        standard: Dictionary mapping ButtonFlag enums to normal button images.
+        highlighted: Dictionary mapping ButtonFlag enums to highlighted button images.
+    """
     standard: Dict[ButtonFlag, pygame.Surface]
     highlighted: Dict[ButtonFlag, pygame.Surface]
 
 
 @dataclass(frozen=True)
 class DiscContainer:
+    """
+    Container for disc images in normal and highlighted states.
+
+    Attributes:
+        standard: Dictionary mapping disc sizes (integers) to normal disc images.
+        highlighted: Dictionary mapping disc sizes (integers) to highlighted disc images.
+    """
     standard: Dict[int, pygame.Surface]
     highlighted: Dict[int, pygame.Surface]
 
 
 @dataclass(frozen=True)
 class SettingIndicatorContainer:
+    """
+    Container for images that visualize user settings in the options menu.
+
+    Attributes:
+        difficulty: Dictionary mapping difficulty levels to corresponding indicator images.
+        resolution: Dictionary mapping resolution tuples to corresponding indicator images.
+        theme: Dictionary mapping MenuTheme enums to corresponding indicator images.
+    """
     difficulty: Dict[int, pygame.Surface]
     resolution: Dict[Tuple, pygame.Surface]
     theme: Dict[MenuTheme, pygame.Surface]
@@ -37,17 +68,44 @@ class SettingIndicatorContainer:
 
 @dataclass(frozen=True)
 class GameNotificationContainer:
+    """
+    Container for notification images displayed during gameplay.
+
+    Attributes:
+        illegal_move: Image displayed when a player attempts an illegal move.
+        victory: Image displayed when the player completes the puzzle.
+    """
     illegal_move: pygame.Surface
     victory: pygame.Surface
 
 
 @dataclass(frozen=True)
 class TutorialSlidesContainer:
+    """
+    Container for tutorial slide images.
+
+    Attributes:
+        slides: Dictionary mapping slide indices to the corresponding tutorial images.
+    """
     slides: Dict[int, pygame.Surface]
 
 
 @dataclass(frozen=True)
 class AssetsContainer:
+    """
+    Top-level container that organizes all game assets by category.
+
+    This immutable container holds references to all visual resources used
+    in the application, grouped by their functional purpose.
+
+    Attributes:
+        backgrounds: Container for all background images.
+        buttons: Container for all button images.
+        discs: Container for all disc images.
+        setting_indicators: Container for all setting indicator images.
+        game_notifications: Container for all notification images.
+        tutorial_images: Container for all tutorial slides.
+    """
     backgrounds: BackgroundContainer
     buttons: ButtonContainer
     discs: DiscContainer
@@ -57,6 +115,19 @@ class AssetsContainer:
 
 
 class CommonAssets(TypedDict):
+    """
+    TypedDict defining the structure for assets shared across all themes.
+
+    Used as a return type for the get_common_assets function.
+
+    Attributes:
+        credits: Credits screen background image.
+        button_assets: Container for all button images.
+        disc_assets: Container for all disc images.
+        setting_indicator_assets: Container for all setting indicator images.
+        notification_assets: Container for all notification images.
+        tutorial_assets: Container for all tutorial slides.
+    """
     credits: pygame.Surface
     button_assets: ButtonContainer
     disc_assets: DiscContainer
@@ -66,6 +137,19 @@ class CommonAssets(TypedDict):
 
 
 def get_theme_specific_assets(theme: MenuTheme) -> Tuple[pygame.Surface, pygame.Surface, pygame.Surface]:
+    """
+    Load the background images specific to the selected theme.
+
+    Args:
+        theme: The MenuTheme enum value representing the selected theme.
+
+    Returns:
+        A tuple containing (main_menu, options_menu, game_board) background surfaces.
+
+    Raises:
+        pygame.error: If an image cannot be loaded.
+        FileNotFoundError: If an asset file is missing.
+    """
     if theme == MenuTheme.RED:
         main_menu = load_image("red/Menu_BG.png")
         options_menu = load_image("red/Options_BG.png")
@@ -83,6 +167,19 @@ def get_theme_specific_assets(theme: MenuTheme) -> Tuple[pygame.Surface, pygame.
 
 
 def get_common_assets() -> CommonAssets:
+    """
+    Load all assets that are shared across themes.
+
+    This includes buttons, discs, setting indicators, notification images,
+    and tutorial slides.
+
+    Returns:
+        A CommonAssets dictionary containing all shared asset containers.
+
+    Raises:
+        pygame.error: If an image cannot be loaded.
+        FileNotFoundError: If an asset file is missing.
+    """
     credits_background = load_image("Credit_Page.png")
 
     # Buttons###########################################################################################################
@@ -161,6 +258,21 @@ def get_common_assets() -> CommonAssets:
 
 
 def build_asset_container(theme: MenuTheme) -> Optional[AssetsContainer]:
+    """
+    Create a complete AssetsContainer with all visual resources.
+
+    This factory function assembles both theme-specific and common assets
+    into a single immutable container for use by the renderer.
+
+    Args:
+        theme: The MenuTheme enum value representing the selected theme.
+
+    Returns:
+        A complete AssetsContainer with all assets, or None if loading fails.
+
+    Raises:
+        No exceptions are raised directly - errors are logged instead.
+    """
     # Get theme specific assets
     try:
         main_menu_background, options_menu_background, game_board_background = get_theme_specific_assets(theme)

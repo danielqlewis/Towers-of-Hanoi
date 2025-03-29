@@ -14,11 +14,39 @@ logger = logging.getLogger(__name__)
 
 
 class ProgramLoop:
+    """
+    Manages the main execution loop that drives the Tower of Hanoi application.
+
+    This class initializes Pygame, creates the virtual screen architecture,
+    coordinates state transitions, and maintains the game loop that processes
+    input, updates models, and renders the screen.
+
+    Attributes:
+        screen: The main Pygame display surface.
+        virtual_screen: Fixed-size surface for resolution-independent rendering.
+        menu_model: Persistent MenuModel instance used throughout the program.
+        renderer: GameRenderer instance for drawing to the screen.
+        controller: ProgramController for handling user input.
+        current_state: Current program state (menu or game).
+        clock: Pygame clock for controlling frame rate.
+        running: Flag indicating if the program should continue running.
+        VIRTUAL_SCREEN_SIZE: Fixed dimensions of the virtual screen.
+        PROGRAM_FPS: Target frames per second for the game loop.
+    """
     # Class constants
     VIRTUAL_SCREEN_SIZE = (960, 640)
     PROGRAM_FPS = 60
 
     def __init__(self):
+        """
+        Initialize the program loop and all core components.
+
+        Sets up Pygame, creates the display surfaces, initializes the menu model,
+        loads assets, and creates the renderer and controller instances.
+
+        Raises:
+            SystemExit: If Pygame initialization fails or assets cannot be loaded.
+        """
         try:
             pygame.init()
             self.screen = pygame.display.set_mode(self.VIRTUAL_SCREEN_SIZE)
@@ -47,12 +75,33 @@ class ProgramLoop:
 
     @staticmethod
     def _check_for_exit_events(event_list: List[pygame.event.Event]) -> bool:
+        """
+        Check if any exit events (window close) have occurred.
+
+        Args:
+            event_list: List of Pygame events to check.
+
+        Returns:
+            True if an exit event was found, False otherwise.
+        """
         for event in event_list:
             if event.type == pygame.QUIT:
                 return True
         return False
 
     def process_input(self, event_list: List[pygame.event.Event]) -> UserInput:
+        """
+        Process raw Pygame events into a structured UserInput object.
+
+        Converts physical screen coordinates to virtual screen coordinates
+        and detects mouse clicks.
+
+        Args:
+            event_list: List of Pygame events to process.
+
+        Returns:
+            UserInput object with position and click information.
+        """
         mouse_pos = pygame.mouse.get_pos()
         virtual_width, virtual_hight = self.VIRTUAL_SCREEN_SIZE
         current_width, current_hight = self.screen.get_size()
@@ -70,6 +119,15 @@ class ProgramLoop:
         return UserInput(position=virtual_mouse_pos, clicked=clicked)
 
     def handle_user_input(self) -> bool:
+        """
+        Get and process user input events.
+
+        Checks for exit events, processes input into a UserInput object,
+        and passes it to the controller for handling.
+
+        Returns:
+            False if the program should exit, True otherwise.
+        """
         event_list = pygame.event.get()
         if self._check_for_exit_events(event_list):
             return False
@@ -79,6 +137,12 @@ class ProgramLoop:
 
 
     def check_and_update_settings(self) -> None:
+        """
+        Check for and apply settings changes.
+
+        Updates the asset container if the theme has changed and
+        updates the display mode if the resolution has changed.
+        """
         if self.controller.asset_package_updated:
             active_theme = self.controller.model.settings["theme"]
             new_container = build_asset_container(active_theme)
@@ -91,6 +155,12 @@ class ProgramLoop:
         self.controller.reset_settings_update_flags()
 
     def handle_program_state_change(self) -> None:
+        """
+        Handle transitions between menu and game states.
+
+        Creates a new GameModel when transitioning to the game state or
+        switches back to the persistent MenuModel when returning to the menu.
+        """
         if self.controller.next_state is not None:
             self.current_state = self.controller.next_state
             if self.current_state == ProgramState.MENU:
@@ -101,6 +171,12 @@ class ProgramLoop:
             self.controller.update_state(new_model)
 
     def update_and_render(self) -> None:
+        """
+        Update the display if the model has changed.
+
+        Renders the appropriate view based on the current state, scales
+        the virtual screen to the actual display size, and updates the screen.
+        """
         if self.controller.model_updated:
             if self.current_state == ProgramState.MENU:
                 self.renderer.render_menu(self.controller.model, self.virtual_screen)
@@ -113,6 +189,12 @@ class ProgramLoop:
             pygame.display.flip()
 
     def run_program(self) -> None:
+        """
+        Execute the main program loop.
+
+        Handles input processing, state changes, rendering, and timing in a
+        continuous loop until the program is terminated.
+        """
         self.controller.model_updated = True
         self.update_and_render()
 
