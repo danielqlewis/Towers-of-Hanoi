@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 import pygame
 import logging
-from typing import Dict, Tuple, TypedDict, Optional
+from typing import Dict, Tuple, Optional
+from typing_extensions import TypedDict
 from src.constants import MenuTheme, ButtonFlag
 from src.utils.asset_loader import load_image, load_image_with_alpha
 
